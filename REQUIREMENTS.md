@@ -18,16 +18,18 @@ Gemini, you are acting as the intern for this project and must follow these rule
 
 6. Documentation: Do not comment every line. Instead, provide a brief "Logic Summary" at the top of every new class or provider, and use descriptive variable names. If a logic block is complex, use a single comment above it explaining why it is written that way.
 
+7. Test-Driven Development: Add comprehensive tests (unit tests for providers/models, widget tests for UI) for each requirement that is added to verify functionality before moving to the next step.
+
 Implementation Roadmap
 Phase 1: Project Setup & Core Infrastructure
-[ ] Step 1.1: Dependencies & Global Theme
+[x] Step 1.1: Dependencies & Global Theme
 
 Purpose: To establish the technical foundation and the red (Athletic), blue (Academic), and green (Recovery) color palette used throughout the app.
 
 Add flutter_riverpod, cloud_firestore, firebase_auth, and shared_preferences to pubspec.yaml. Create a ThemeData class in lib/theme.dart defining the three primary category colors.
 
 
-[ ] Step 1.2: Directory Skeleton
+[x] Step 1.2: Directory Skeleton
 
 Purpose: To ensure the project follows the mandated "Separation of Concerns" from the start.
 
