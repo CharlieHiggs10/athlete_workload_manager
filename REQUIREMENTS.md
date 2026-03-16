@@ -39,7 +39,7 @@ Phase 2: Milestone 1 - The Triple-Modal Calendar (MVP)
 
 Goal: Implement the core scheduling interface where users can toggle between athletic, academic, and recovery views.
 
-[ ] Step 2.1: Multi-Modal Calendar UI
+[x] Step 2.1: Multi-Modal Calendar UI
 
 Purpose: To create a responsive calendar interface that switches its theme and labels based on the active category (Red for Athletics, Blue for Academics, Green for Recovery).
 

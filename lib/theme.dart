@@ -9,17 +9,19 @@ class AppTheme {
   static const Color academicBlue = Color(0xFF1976D2);
   static const Color recoveryGreen = Color(0xFF388E3C);
 
-  static ThemeData get lightTheme {
+  /// Default light theme using Athletic Red as the seed.
+  static ThemeData get lightTheme => getThemeForColor(athleticRed);
+
+  /// Generates a ThemeData based on a specific category color.
+  static ThemeData getThemeForColor(Color seedColor) {
     return ThemeData(
       useMaterial3: true,
       colorScheme: ColorScheme.fromSeed(
-        seedColor: athleticRed,
-        primary: athleticRed,
-        secondary: academicBlue,
-        tertiary: recoveryGreen,
+        seedColor: seedColor,
+        primary: seedColor,
       ),
-      appBarTheme: const AppBarTheme(
-        backgroundColor: athleticRed,
+      appBarTheme: AppBarTheme(
+        backgroundColor: seedColor,
         foregroundColor: Colors.white,
       ),
     );

@@ -1,30 +1,35 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:athlete_workload/main.dart';
+import 'package:athlete_workload/models/athlete_mode.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
+  testWidgets('CalendarScreen switches modes correctly', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+    await tester.pumpWidget(const ProviderScope(child: MyApp()));
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    // Verify initial state is Athletic.
+    expect(find.text('Athletic'), findsOneWidget);
+    expect(find.text('Athletic Calendar View'), findsOneWidget);
+    expect(find.byIcon(Icons.fitness_center), findsAtLeastNWidgets(2)); // One in actions, one in body.
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    // Switch to Academic mode.
+    await tester.tap(find.byTooltip('ACADEMIC'));
+    await tester.pumpAndSettle();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // Verify UI reflects Academic mode.
+    expect(find.text('Academic'), findsOneWidget);
+    expect(find.text('Academic Calendar View'), findsOneWidget);
+    expect(find.byIcon(Icons.school), findsAtLeastNWidgets(2));
+
+    // Switch to Recovery mode.
+    await tester.tap(find.byTooltip('RECOVERY'));
+    await tester.pumpAndSettle();
+
+    // Verify UI reflects Recovery mode.
+    expect(find.text('Recovery'), findsOneWidget);
+    expect(find.text('Recovery Calendar View'), findsOneWidget);
+    expect(find.byIcon(Icons.self_improvement), findsAtLeastNWidgets(2));
   });
 }
