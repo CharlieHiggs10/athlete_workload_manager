@@ -45,17 +45,20 @@ Purpose: To create a responsive calendar interface that switches its theme and l
 
 Build a CalendarScreen with top-level icons to toggle between the three modes.
 
-[ ] Step 2.2: Pop-down Selection Logic
-
-Purpose: To allow users to assign specific activities to dates and times using the predefined category menus.
-
-Implement a modal bottom sheet or pop-down menu for each mode (e.g., Practice/Lift for Athletic; Test/Lab for Academic; Ice Bath/Stretching for Recovery).
-
 [x] Step 2.2.1: Global Schedule Action Button 
 Purpose: Implement a persistent FloatingActionButton on the CalendarScreen that adapts its color to the current mode and triggers an empty Modal Bottom Sheet.
 
 [ ] Step 2.2.2: Context-Aware Input Sheet
 Purpose: Develop the ActivityInputSheet widget in /widgets. This modal must detect the active AthleteMode via Riverpod and display corresponding selection chips (e.g., Athletic → "Practice", "Lift", "Film").
+
+[ ] Step 2.2.2.1: Contextual Activity Chips
+Purpose: Build the ActivityInputSheet in /widgets that detects the active mode and displays the specific activity lists (Athletic: Lift, Practice, Game, Film, Travel; Academic: Class, Lab, Study, Exam, Office Hours; Recovery: Injury Rehab, Ice Bath, Stretching, Hydration, Nap).
+
+[ ] Step 2.2.2.2: Time Interval Selection
+Purpose: Integrate start and end time selection using Flutter’s native TimePicker within the ActivityInputSheet to define the duration of an activity.
+
+[ ] Step 2.2.2.3: Log Activity Submission
+Purpose: Implement the "Log Activity" button to capture the selected chip and time data, preparing it for local state storage.
 
 [ ] Step 2.2.3: Modal Theme & Interaction Testing
 Purpose: Ensure the modal UI matches the AppTheme colors. Implement widget tests to verify that opening the modal in "Academic" mode displays the correct academic options.

@@ -8,7 +8,7 @@ void main() {
   testWidgets('FloatingActionButton should trigger a placeholder ModalBottomSheet', (WidgetTester tester) async {
     await tester.pumpWidget(const ProviderScope(child: MyApp()));
 
-    // Find the FAB.
+    // Find the FAB. (FLOATING ACTION BUTTON)
     final fabFinder = find.byType(FloatingActionButton);
     expect(fabFinder, findsOneWidget);
 
