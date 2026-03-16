@@ -26,6 +26,7 @@ void main() {
     // Switch to Recovery mode.
     await tester.tap(find.byTooltip('RECOVERY'));
     await tester.pumpAndSettle();
+    // WHAT IS THIS ^
 
     // Verify UI reflects Recovery mode.
     expect(find.text('Recovery'), findsOneWidget);

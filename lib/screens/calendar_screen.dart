@@ -63,7 +63,29 @@ class CalendarScreen extends ConsumerWidget {
             ],
           ),
         ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () => _showActivityBottomSheet(context),
+          tooltip: 'Add Activity',
+          backgroundColor: themeData.primaryColor,
+          foregroundColor: Colors.white,
+          child: const Icon(Icons.add),
+        ),
       ),
+    );
+  }
+
+  /// Displays a placeholder Modal Bottom Sheet for adding activities.
+  void _showActivityBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return const SizedBox(
+          height: 200,
+          child: Center(
+            child: Text('Add Activity Placeholder'),
+          ),
+        );
+      },
     );
   }
 

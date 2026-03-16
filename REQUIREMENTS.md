@@ -51,6 +51,15 @@ Purpose: To allow users to assign specific activities to dates and times using t
 
 Implement a modal bottom sheet or pop-down menu for each mode (e.g., Practice/Lift for Athletic; Test/Lab for Academic; Ice Bath/Stretching for Recovery).
 
+[x] Step 2.2.1: Global Schedule Action Button 
+Purpose: Implement a persistent FloatingActionButton on the CalendarScreen that adapts its color to the current mode and triggers an empty Modal Bottom Sheet.
+
+[ ] Step 2.2.2: Context-Aware Input Sheet
+Purpose: Develop the ActivityInputSheet widget in /widgets. This modal must detect the active AthleteMode via Riverpod and display corresponding selection chips (e.g., Athletic → "Practice", "Lift", "Film").
+
+[ ] Step 2.2.3: Modal Theme & Interaction Testing
+Purpose: Ensure the modal UI matches the AppTheme colors. Implement widget tests to verify that opening the modal in "Academic" mode displays the correct academic options.
+
 [ ] Step 2.3: Local Activity Models & Logging
 
 Purpose: To define the data structure for "Activities" and implement the "Update" button logic to save changes to the local state.
