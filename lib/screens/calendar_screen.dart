@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/athlete_mode.dart';
 import '../providers/athlete_mode_provider.dart';
+import '../widgets/activity_input_sheet.dart';
 import '../theme.dart';
 
 /// Logic Summary:
@@ -64,7 +65,7 @@ class CalendarScreen extends ConsumerWidget {
           ),
         ),
         floatingActionButton: FloatingActionButton(
-          onPressed: () => _showActivityBottomSheet(context),
+          onPressed: () => _showActivityBottomSheet(context, currentMode),
           tooltip: 'Add Activity',
           backgroundColor: themeData.primaryColor,
           foregroundColor: Colors.white,
@@ -74,16 +75,15 @@ class CalendarScreen extends ConsumerWidget {
     );
   }
 
-  /// Displays a placeholder Modal Bottom Sheet for adding activities.
-  void _showActivityBottomSheet(BuildContext context) {
+  /// Displays the ActivityInputSheet within a Modal Bottom Sheet.
+  void _showActivityBottomSheet(BuildContext context, AthleteMode mode) {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       builder: (context) {
-        return const SizedBox(
-          height: 200,
-          child: Center(
-            child: Text('Add Activity Placeholder'),
-          ),
+        return Theme(
+          data: _getThemeForMode(mode),
+          child: const ActivityInputSheet(),
         );
       },
     );

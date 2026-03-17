@@ -48,10 +48,7 @@ Build a CalendarScreen with top-level icons to toggle between the three modes.
 [x] Step 2.2.1: Global Schedule Action Button 
 Purpose: Implement a persistent FloatingActionButton on the CalendarScreen that adapts its color to the current mode and triggers an empty Modal Bottom Sheet.
 
-[ ] Step 2.2.2: Context-Aware Input Sheet
-Purpose: Develop the ActivityInputSheet widget in /widgets. This modal must detect the active AthleteMode via Riverpod and display corresponding selection chips (e.g., Athletic → "Practice", "Lift", "Film").
-
-[ ] Step 2.2.2.1: Contextual Activity Chips
+[x] Step 2.2.2.1: Contextual Activity Chips
 Purpose: Build the ActivityInputSheet in /widgets that detects the active mode and displays the specific activity lists (Athletic: Lift, Practice, Game, Film, Travel; Academic: Class, Lab, Study, Exam, Office Hours; Recovery: Injury Rehab, Ice Bath, Stretching, Hydration, Nap).
 
 [ ] Step 2.2.2.2: Time Interval Selection

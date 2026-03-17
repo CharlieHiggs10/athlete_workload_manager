@@ -13,7 +13,7 @@ void main() {
 
     // The test() function defines a single fact we want to prove about the code.
     test('Athletic color should be red', () {
-      // Expect takes the variable from the app (athletic red) and compares it 
+      // Expect() takes the variable from the app (athletic red) and compares it 
       // with the hardcoded value (Color(0xFFD32F2F). If they match, the test passes. 
       expect(AppTheme.athleticRed, const Color(0xFFD32F2F));
     });

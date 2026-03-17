@@ -16,8 +16,8 @@ void main() {
     await tester.tap(fabFinder);
     await tester.pumpAndSettle();
 
-    // Verify bottom sheet is shown with placeholder text.
-    expect(find.text('Add Activity Placeholder'), findsOneWidget);
+    // Verify bottom sheet is shown with correctly filtered activity chips.
+    expect(find.text('Select Athletic Activity'), findsOneWidget);
   });
 
   testWidgets('FloatingActionButton color should match the active mode theme', (WidgetTester tester) async {
