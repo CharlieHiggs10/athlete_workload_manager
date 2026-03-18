@@ -134,6 +134,7 @@ void main() {
       expect(liftChipWidget.selected, isTrue);
     });
 
+    // Time interval tests
     testWidgets('Displays time selectors with initial placeholder', (tester) async {
       await tester.pumpWidget(
         ProviderScope(
