@@ -48,17 +48,17 @@ Build a CalendarScreen with top-level icons to toggle between the three modes.
 [x] Step 2.2.1: Global Schedule Action Button 
 Purpose: Implement a persistent FloatingActionButton on the CalendarScreen that adapts its color to the current mode and triggers an empty Modal Bottom Sheet.
 
-[x] Step 2.2.2.1: Contextual Activity Chips
-Purpose: Build the ActivityInputSheet in /widgets that detects the active mode and displays the specific activity lists (Athletic: Lift, Practice, Game, Film, Travel; Academic: Class, Lab, Study, Exam, Office Hours; Recovery: Injury Rehab, Ice Bath, Stretching, Hydration, Nap).
+    [x] Step 2.2.2.1: Contextual Activity Chips
+    Purpose: Build the ActivityInputSheet in /widgets that detects the active mode and displays the specific activity lists (Athletic: Lift, Practice, Game, Film, Travel; Academic: Class, Lab, Study, Exam, Office Hours; Recovery: Injury Rehab, Ice Bath, Stretching, Hydration, Nap).
 
-[ ] Step 2.2.2.2: Time Interval Selection
-Purpose: Integrate start and end time selection using Flutter’s native TimePicker within the ActivityInputSheet to define the duration of an activity.
+    [x] Step 2.2.2.2: Date Context & Time Interval Selection
+    Purpose: Update the ActivityInputSheet to accept a selected DateTime parameter from the CalendarScreen. Integrate start and end time selection using Flutter’s native TimePicker within the sheet to define the exact day and duration of an activity.
 
-[ ] Step 2.2.2.3: Log Activity Submission
-Purpose: Implement the "Log Activity" button to capture the selected chip and time data, preparing it for local state storage.
+    [ ] Step 2.2.2.3: Log Activity Submission
+    Purpose: Implement the "Log Activity" button to capture the complete data payload (selected date, time interval, and activity chip), preparing it for local state storage.
 
-[ ] Step 2.2.3: Modal Theme & Interaction Testing
-Purpose: Ensure the modal UI matches the AppTheme colors. Implement widget tests to verify that opening the modal in "Academic" mode displays the correct academic options.
+    [ ] Step 2.2.3: Modal Theme & Interaction Testing
+    Purpose: Ensure the modal UI matches the AppTheme colors and implement widget tests to verify that the selection logic correctly filters activities by mode.
 
 [ ] Step 2.3: Local Activity Models & Logging
 

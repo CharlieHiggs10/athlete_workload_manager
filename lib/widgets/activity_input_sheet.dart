@@ -7,11 +7,14 @@ import '../providers/athlete_mode_provider.dart';
 // Bottom sheet that displays mode-specific activity chips
 // (Athletic, Academic, Recovery) for the user to select.
 // Uses the current global athlete mode to filter available options.
+// Also allows selecting a start and end time for the activity.
 // Use a ConsumerStatefulWidget here because there needs to be types of state:
 // 1. Global State (Riverpod): To know which mode we are in (Red, Blue, Green).
-// 2. Local State (Flutter): To track which specific chip the user just tapped.
+// 2. Local State (Flutter): To track which specific chip the user just tapped,
+//    and to store the selected start and end times.
 class ActivityInputSheet extends ConsumerStatefulWidget {
-  const ActivityInputSheet({super.key});
+  final DateTime selectedDate;
+  const ActivityInputSheet({super.key, required this.selectedDate});
 
   @override
   ConsumerState<ActivityInputSheet> createState() => _ActivityInputSheetState();
@@ -22,6 +25,10 @@ class _ActivityInputSheetState extends ConsumerState<ActivityInputSheet> {
   // It is nullable (String?) because when the sheet first opens, nothing is selected.
   String? _selectedActivity;
 
+  // Local state variables for the time interval of the activity.
+  TimeOfDay? _startTime;
+  TimeOfDay? _endTime;
+
   // A Map that links your specific SLU activity lists 
   // to their corresponding Riverpod mode.
   final Map<AthleteMode, List<String>> _modeChips = {
@@ -29,6 +36,23 @@ class _ActivityInputSheetState extends ConsumerState<ActivityInputSheet> {
     AthleteMode.academic: ['Class', 'Lab', 'Study', 'Exam', 'Office Hours'],
     AthleteMode.recovery: ['Injury Rehab', 'Ice Bath', 'Stretching', 'Hydration', 'Nap'],
   };
+
+  /// Triggers the native Flutter TimePicker to select a start or end time.
+  Future<void> _selectTime(BuildContext context, bool isStartTime) async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: (isStartTime ? _startTime : _endTime) ?? TimeOfDay.now(),
+    );
+    if (picked != null) {
+      setState(() {
+        if (isStartTime) {
+          _startTime = picked;
+        } else {
+          _endTime = picked;
+        }
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +67,9 @@ class _ActivityInputSheetState extends ConsumerState<ActivityInputSheet> {
     // the Red, Blue, or Green styling defined in your CalendarScreen.
     final theme = Theme.of(context);
 
+    // Format selected date for display
+    final dateString = "${widget.selectedDate.month}/${widget.selectedDate.day}/${widget.selectedDate.year}";
+
     return Container(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -55,6 +82,13 @@ class _ActivityInputSheetState extends ConsumerState<ActivityInputSheet> {
             style: theme.textTheme.titleLarge?.copyWith(
               color: theme.primaryColor,
               fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Date: $dateString',
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: Colors.grey[600],
             ),
           ),
           const SizedBox(height: 16),
@@ -89,9 +123,81 @@ class _ActivityInputSheetState extends ConsumerState<ActivityInputSheet> {
               );
             }).toList(),
           ),
+          const SizedBox(height: 24),
+
+          // Time Selection Section
+          Row(
+            children: [
+              Expanded(
+                child: _TimeSelector(
+                  label: 'Start Time',
+                  time: _startTime,
+                  onTap: () => _selectTime(context, true),
+                  color: theme.primaryColor,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: _TimeSelector(
+                  label: 'End Time',
+                  time: _endTime,
+                  onTap: () => _selectTime(context, false),
+                  color: theme.primaryColor,
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: 32), 
         ],
       ),
+    );
+  }
+}
+
+/// Logic Summary:
+/// A helper widget to display a time selection button with a label.
+class _TimeSelector extends StatelessWidget {
+  final String label;
+  final TimeOfDay? time;
+  final VoidCallback onTap;
+  final Color color;
+
+  const _TimeSelector({
+    required this.label,
+    required this.time,
+    required this.onTap,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            color: Colors.grey[600],
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 8),
+        OutlinedButton(
+          onPressed: onTap,
+          style: OutlinedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+            side: BorderSide(color: color),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          child: Text(
+            time?.format(context) ?? 'Select Time',
+            style: TextStyle(color: color),
+          ),
+        ),
+      ],
     );
   }
 }

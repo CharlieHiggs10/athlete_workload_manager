@@ -23,9 +23,9 @@ void main() {
           overrides: [
             athleteModeProvider.overrideWith((ref) => AthleteMode.athletic),
           ],
-          child: const MaterialApp(
+          child: MaterialApp(
             home: Scaffold(
-              body: ActivityInputSheet(),
+              body: ActivityInputSheet(selectedDate: DateTime(2026, 3, 18)),
             ),
           ),
         ),
@@ -52,9 +52,9 @@ void main() {
           overrides: [
             athleteModeProvider.overrideWith((ref) => AthleteMode.academic),
           ],
-          child: const MaterialApp(
+          child: MaterialApp(
             home: Scaffold(
-              body: ActivityInputSheet(),
+              body: ActivityInputSheet(selectedDate: DateTime(2026, 3, 18)),
             ),
           ),
         ),
@@ -77,9 +77,9 @@ void main() {
           overrides: [
             athleteModeProvider.overrideWith((ref) => AthleteMode.recovery),
           ],
-          child: const MaterialApp(
+          child: MaterialApp(
             home: Scaffold(
-              body: ActivityInputSheet(),
+              body: ActivityInputSheet(selectedDate: DateTime(2026, 3, 18)),
             ),
           ),
         ),
@@ -97,10 +97,10 @@ void main() {
 
     testWidgets('Chip selection updates UI', (tester) async {
       await tester.pumpWidget(
-        const ProviderScope(
+        ProviderScope(
           child: MaterialApp(
             home: Scaffold(
-              body: ActivityInputSheet(),
+              body: ActivityInputSheet(selectedDate: DateTime(2026, 3, 18)),
             ),
           ),
         ),
@@ -132,6 +132,26 @@ void main() {
       // successfully flipped to true.
       liftChipWidget = tester.widget(liftChip);
       expect(liftChipWidget.selected, isTrue);
+    });
+
+    testWidgets('Displays time selectors with initial placeholder', (tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          child: MaterialApp(
+            home: Scaffold(
+              body: ActivityInputSheet(selectedDate: DateTime(2026, 3, 18)),
+            ),
+          ),
+        ),
+      );
+
+      // Verify Start Time section
+      expect(find.text('Start Time'), findsOneWidget);
+      // Verify End Time section
+      expect(find.text('End Time'), findsOneWidget);
+      
+      // Initially, they should show 'Select Time'
+      expect(find.text('Select Time'), findsNWidgets(2));
     });
   });
 }

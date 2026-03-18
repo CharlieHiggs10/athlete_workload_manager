@@ -83,7 +83,9 @@ class CalendarScreen extends ConsumerWidget {
       builder: (context) {
         return Theme(
           data: _getThemeForMode(mode),
-          child: const ActivityInputSheet(),
+          child: ActivityInputSheet(
+            selectedDate: DateTime.now(),
+          ),
         );
       },
     );
