@@ -45,8 +45,10 @@ Purpose: To create a responsive calendar interface that switches its theme and l
 
 Build a CalendarScreen with top-level icons to toggle between the three modes.
 
-[x] Step 2.2.1: Global Schedule Action Button 
-Purpose: Implement a persistent FloatingActionButton on the CalendarScreen that adapts its color to the current mode and triggers an empty Modal Bottom Sheet.
+Step 2.2: The Dynamic Scheduling Interface
+
+    [x] Step 2.2.1: Global Schedule Action Button 
+    Purpose: Implement a persistent FloatingActionButton on the CalendarScreen that adapts its color to the current mode and triggers an empty Modal Bottom Sheet.
 
     [x] Step 2.2.2.1: Contextual Activity Chips
     Purpose: Build the ActivityInputSheet in /widgets that detects the active mode and displays the specific activity lists (Athletic: Lift, Practice, Game, Film, Travel; Academic: Class, Lab, Study, Exam, Office Hours; Recovery: Injury Rehab, Ice Bath, Stretching, Hydration, Nap).
@@ -63,11 +65,17 @@ Purpose: Implement a persistent FloatingActionButton on the CalendarScreen that 
     [x] Step 2.2.4: Date UI Polish & Future Validation
     Purpose: To ensure data integrity for the predictive burnout analytics and improve user experience. Convert the Date display in the ActivityInputSheet into an OutlinedButton (matching the TimeSelectors) so it is visually obvious it can be edited. Restrict the native showDatePicker to only allow the current day or future dates by setting firstDate to DateTime.now(), preventing athletes from skewing the predictive algorithm with past data.
 
-[ ] Step 2.3: Local Activity Models & Logging
+Step 2.3: Local Activity Models & Logging
+Purpose: To define the data structure for "Activities," establish a global memory vault to store them, and wire up the calendar to catch and save the user's input.
 
-Purpose: To define the data structure for "Activities" and implement the "Update" button logic to save changes to the local state.
+    [x] Step 2.3.1: The ActivityModel Data Class
+    Purpose: Create a strictly typed Dart class in your /models folder to replace the raw Map payload. This class acts as the blueprint, ensuring every logged event has an id, title (the chip string), date, startTime, endTime, and category (AthleteMode).
 
-Create a unified ActivityModel and a Riverpod StateNotifier to manage the list of scheduled items before they are synced to the cloud.
+    [ ] Step 2.3.2: The Local State Vault (ActivityProvider)
+    Purpose: Create a Riverpod StateNotifier (or Notifier) in your /providers folder. This acts as the app's short-term memory before Firebase is introduced. It will hold a List<ActivityModel> and contain the addActivity(ActivityModel activity) logic to safely update the global schedule.
+
+    [ ] Step 2.3.3: The Save Pipeline (Calendar Integration)
+    Purpose: Update the CalendarScreen's Floating Action Button logic. When the showModalBottomSheet finishes and returns the raw data payload, this step converts that payload into a formal ActivityModel and passes it to the ActivityProvider's add method, officially saving the data.
 
 Phase 3: Milestone 2 - Full Integration & Analytics
 
