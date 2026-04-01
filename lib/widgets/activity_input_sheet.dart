@@ -40,10 +40,11 @@ class _ActivityInputSheetState extends ConsumerState<ActivityInputSheet> {
   // This is an 'async' function because we have to pause and wait for the user 
   // to physically tap a date on the screen before continuing.
   Future<void> _selectDate(BuildContext context) async {
+    final now = DateTime.now();
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: _selectedDate,
-      firstDate: DateTime(2020),
+      initialDate: _selectedDate.isBefore(now) ? now : _selectedDate,
+      firstDate: now,
       lastDate: DateTime(2100),
     );
 
@@ -92,29 +93,45 @@ class _ActivityInputSheetState extends ConsumerState<ActivityInputSheet> {
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 16),
           
-          // InkWell gives the material ripple effect when tapping the date text.
-          InkWell(
-            onTap: () => _selectDate(context),
-            borderRadius: BorderRadius.circular(4),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4.0),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.calendar_today, size: 16, color: theme.primaryColor),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Date: $dateString',
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.primaryColor,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Date',
+                style: TextStyle(
+                  color: Colors.grey[600],
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
+              const SizedBox(height: 8),
+              OutlinedButton(
+                onPressed: () => _selectDate(context),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+                  side: BorderSide(color: theme.primaryColor),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.calendar_today, size: 16, color: theme.primaryColor),
+                    const SizedBox(width: 8),
+                    Text(
+                      dateString,
+                      style: TextStyle(
+                        color: theme.primaryColor,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 16),
           

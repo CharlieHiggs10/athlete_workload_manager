@@ -22,7 +22,7 @@ void main() {
           child: MaterialApp(
             theme: AppTheme.getThemeForColor(AppTheme.athleticRed),
             home: Scaffold(
-              body: ActivityInputSheet(initialDate: DateTime(2026, 3, 18)),
+              body: ActivityInputSheet(initialDate: DateTime(2026, 4, 1)),
             ),
           ),
         ),
@@ -37,6 +37,10 @@ void main() {
 
       final logButton = tester.widget<ElevatedButton>(find.byType(ElevatedButton));
       expect(logButton.style?.backgroundColor?.resolve({}), equals(AppTheme.athleticRed));
+
+      // Verify Date button styling
+      final dateButton = tester.widget<OutlinedButton>(find.byType(OutlinedButton).first);
+      expect(dateButton.style?.side?.resolve({})?.color, equals(AppTheme.athleticRed));
     });
 
     testWidgets('Displays Academic chips and Blue theme when in Academic mode', (tester) async {
@@ -48,7 +52,7 @@ void main() {
           child: MaterialApp(
             theme: AppTheme.getThemeForColor(AppTheme.academicBlue),
             home: Scaffold(
-              body: ActivityInputSheet(initialDate: DateTime(2026, 3, 18)),
+              body: ActivityInputSheet(initialDate: DateTime(2026, 4, 1)),
             ),
           ),
         ),
@@ -63,6 +67,10 @@ void main() {
 
       final logButton = tester.widget<ElevatedButton>(find.byType(ElevatedButton));
       expect(logButton.style?.backgroundColor?.resolve({}), equals(AppTheme.academicBlue));
+
+      // Verify Date button styling
+      final dateButton = tester.widget<OutlinedButton>(find.byType(OutlinedButton).first);
+      expect(dateButton.style?.side?.resolve({})?.color, equals(AppTheme.academicBlue));
     });
 
     testWidgets('Displays Recovery chips and Green theme when in Recovery mode', (tester) async {
@@ -74,7 +82,7 @@ void main() {
           child: MaterialApp(
             theme: AppTheme.getThemeForColor(AppTheme.recoveryGreen),
             home: Scaffold(
-              body: ActivityInputSheet(initialDate: DateTime(2026, 3, 18)),
+              body: ActivityInputSheet(initialDate: DateTime(2026, 4, 1)),
             ),
           ),
         ),
@@ -89,6 +97,10 @@ void main() {
 
       final logButton = tester.widget<ElevatedButton>(find.byType(ElevatedButton));
       expect(logButton.style?.backgroundColor?.resolve({}), equals(AppTheme.recoveryGreen));
+
+      // Verify Date button styling
+      final dateButton = tester.widget<OutlinedButton>(find.byType(OutlinedButton).first);
+      expect(dateButton.style?.side?.resolve({})?.color, equals(AppTheme.recoveryGreen));
     });
 
     testWidgets('Chip selection updates UI and reflects theme', (tester) async {
@@ -97,7 +109,7 @@ void main() {
           child: MaterialApp(
             theme: AppTheme.getThemeForColor(AppTheme.athleticRed),
             home: Scaffold(
-              body: ActivityInputSheet(initialDate: DateTime(2026, 3, 18)),
+              body: ActivityInputSheet(initialDate: DateTime(2026, 4, 1)),
             ),
           ),
         ),
@@ -121,16 +133,16 @@ void main() {
           child: MaterialApp(
             theme: AppTheme.getThemeForColor(AppTheme.athleticRed),
             home: Scaffold(
-              body: ActivityInputSheet(initialDate: DateTime(2026, 3, 18)),
+              body: ActivityInputSheet(initialDate: DateTime(2026, 4, 1)),
             ),
           ),
         ),
       );
 
-      expect(find.text('Date: 3/18/2026'), findsOneWidget);
+      expect(find.text('4/1/2026'), findsOneWidget);
 
       // Tap the date to open picker
-      await tester.tap(find.text('Date: 3/18/2026'));
+      await tester.tap(find.text('4/1/2026'));
       await tester.pumpAndSettle();
 
       // Select a different date (e.g., 25th)
@@ -138,7 +150,7 @@ void main() {
       await tester.tap(find.text('OK'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Date: 3/25/2026'), findsOneWidget);
+      expect(find.text('4/25/2026'), findsOneWidget);
     });
 
     testWidgets('Validation fails when no activity is selected and shows themed SnackBar', (tester) async {
@@ -147,7 +159,7 @@ void main() {
           child: MaterialApp(
             theme: AppTheme.getThemeForColor(AppTheme.athleticRed),
             home: Scaffold(
-              body: ActivityInputSheet(initialDate: DateTime(2026, 3, 18)),
+              body: ActivityInputSheet(initialDate: DateTime(2026, 4, 1)),
             ),
           ),
         ),
@@ -166,7 +178,7 @@ void main() {
 
     testWidgets('Returns payload with updated date and times', (tester) async {
       Map<String, dynamic>? result;
-      final initialDate = DateTime(2026, 3, 18);
+      final initialDate = DateTime(2026, 4, 1);
 
       await tester.pumpWidget(
         ProviderScope(
@@ -200,7 +212,7 @@ void main() {
       await tester.pump();
 
       // Change Date
-      await tester.tap(find.text('Date: 3/18/2026'));
+      await tester.tap(find.text('4/1/2026'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('25'));
       await tester.tap(find.text('OK'));
@@ -224,7 +236,7 @@ void main() {
 
       expect(result, isNotNull);
       expect(result!['activity'], equals('Lift'));
-      expect(result!['date'], equals(DateTime(2026, 3, 25)));
+      expect(result!['date'], equals(DateTime(2026, 4, 25)));
       expect(result!['startTime'], isA<TimeOfDay>());
       expect(result!['endTime'], isA<TimeOfDay>());
     });
