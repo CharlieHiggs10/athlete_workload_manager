@@ -76,19 +76,26 @@ class CalendarScreen extends ConsumerWidget {
   }
 
   /// Displays the ActivityInputSheet within a Modal Bottom Sheet.
-  void _showActivityBottomSheet(BuildContext context, AthleteMode mode) {
-    showModalBottomSheet(
+  Future<void> _showActivityBottomSheet(BuildContext context, AthleteMode mode) async {
+    final result = await showModalBottomSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       builder: (context) {
         return Theme(
           data: _getThemeForMode(mode),
           child: ActivityInputSheet(
-            selectedDate: DateTime.now(),
+            initialDate: DateTime.now(),
           ),
         );
       },
     );
+
+    if (result != null) {
+      // The payload has been successfully captured.
+      // In Step 2.3, we will implement the global Riverpod StateNotifier
+      // and ActivityModel to persist this data locally.
+      debugPrint('Captured Activity: $result');
+    }
   }
 
   /// Updates the global state with the selected athlete mode.

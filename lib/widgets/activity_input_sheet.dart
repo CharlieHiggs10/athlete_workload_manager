@@ -2,45 +2,63 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/athlete_mode.dart';
 import '../providers/athlete_mode_provider.dart';
+import 'time_selector.dart';
+import 'activity_chip_group.dart';
 
 // Logic Summary:
 // Bottom sheet that displays mode-specific activity chips
 // (Athletic, Academic, Recovery) for the user to select.
 // Uses the current global athlete mode to filter available options.
 // Also allows selecting a start and end time for the activity.
-// Use a ConsumerStatefulWidget here because there needs to be types of state:
-// 1. Global State (Riverpod): To know which mode we are in (Red, Blue, Green).
-// 2. Local State (Flutter): To track which specific chip the user just tapped,
-//    and to store the selected start and end times.
 class ActivityInputSheet extends ConsumerStatefulWidget {
-  final DateTime selectedDate;
-  const ActivityInputSheet({super.key, required this.selectedDate});
+  final DateTime initialDate;
+  const ActivityInputSheet({super.key, required this.initialDate});
 
   @override
   ConsumerState<ActivityInputSheet> createState() => _ActivityInputSheetState();
 }
 
 class _ActivityInputSheetState extends ConsumerState<ActivityInputSheet> {
-  // Local state variable to hold the currently selected chip.
-  // It is nullable (String?) because when the sheet first opens, nothing is selected.
+  // Local state variables. These are nullable (?) because the user 
+  // hasn't selected anything when the modal first pops up.
   String? _selectedActivity;
-
-  // Local state variables for the time interval of the activity.
   TimeOfDay? _startTime;
   TimeOfDay? _endTime;
 
-  // A Map that links your specific SLU activity lists 
-  // to their corresponding Riverpod mode.
-  final Map<AthleteMode, List<String>> _modeChips = {
-    AthleteMode.athletic: ['Lift', 'Practice', 'Game', 'Film', 'Travel'],
-    AthleteMode.academic: ['Class', 'Lab', 'Study', 'Exam', 'Office Hours'],
-    AthleteMode.recovery: ['Injury Rehab', 'Ice Bath', 'Stretching', 'Hydration', 'Nap'],
-  };
+  // 'late' tells Flutter: "I promise to give this a value before it's used."
+  // We do this because we need to grab widget.initialDate in initState.
+  late DateTime _selectedDate;
 
-  /// Triggers the native Flutter TimePicker to select a start or end time.
+  @override
+  void initState() {
+    super.initState();
+    // Initialize our local tracking date with the date passed down from the calendar.
+    _selectedDate = widget.initialDate;
+  }
+
+  // Triggers the native Flutter DatePicker.
+  // This is an 'async' function because we have to pause and wait for the user 
+  // to physically tap a date on the screen before continuing.
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2100),
+    );
+
+    // Only update the state if they actually picked a new date (didn't hit cancel)
+    if (picked != null && picked != _selectedDate) {
+      setState(() => _selectedDate = picked);
+    }
+  }
+
+  /// Triggers the native Flutter TimePicker.
   Future<void> _selectTime(BuildContext context, bool isStartTime) async {
     final TimeOfDay? picked = await showTimePicker(
       context: context,
+      // Smart default: If they already picked a time, show that time. 
+      // Otherwise, default to the exact current time.
       initialTime: (isStartTime ? _startTime : _endTime) ?? TimeOfDay.now(),
     );
     if (picked != null) {
@@ -56,19 +74,10 @@ class _ActivityInputSheetState extends ConsumerState<ActivityInputSheet> {
 
   @override
   Widget build(BuildContext context) {
-    // 1. THE WATCHER: Listen to the global mode. If the user changes modes
-    // in the background, this sheet will instantly rebuild with the new mode's data.
     final currentMode = ref.watch(athleteModeProvider);
-    
-    // 2. THE FILTER: Grab only the list of strings that matches the current mode.
-    final chips = _modeChips[currentMode] ?? [];
-    
-    // 3. THE THEME: Grab the context theme so our chips automatically match 
-    // the Red, Blue, or Green styling defined in your CalendarScreen.
     final theme = Theme.of(context);
-
-    // Format selected date for display
-    final dateString = "${widget.selectedDate.month}/${widget.selectedDate.day}/${widget.selectedDate.year}";
+    // Embed variable values into string to format the date for the UI.
+    final dateString = "${_selectedDate.month}/${_selectedDate.day}/${_selectedDate.year}";
 
     return Container(
       padding: const EdgeInsets.all(16.0),
@@ -76,7 +85,6 @@ class _ActivityInputSheetState extends ConsumerState<ActivityInputSheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Dynamic title that capitalizes the first letter of the mode name.
           Text(
             'Select ${currentMode.name[0].toUpperCase()}${currentMode.name.substring(1)} Activity',
             style: theme.textTheme.titleLarge?.copyWith(
@@ -85,51 +93,43 @@ class _ActivityInputSheetState extends ConsumerState<ActivityInputSheet> {
             ),
           ),
           const SizedBox(height: 8),
-          Text(
-            'Date: $dateString',
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: Colors.grey[600],
+          
+          // InkWell gives the material ripple effect when tapping the date text.
+          InkWell(
+            onTap: () => _selectDate(context),
+            borderRadius: BorderRadius.circular(4),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4.0),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.calendar_today, size: 16, color: theme.primaryColor),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Date: $dateString',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.primaryColor,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
           const SizedBox(height: 16),
           
-          // Wrap is like a Row, but if it runs out of horizontal space, 
-          // it automatically drops the next item to a new line. Perfect for chips.
-          Wrap(
-            spacing: 8.0,
-            runSpacing: 8.0,
-            // We map over our list of strings and turn each one into a ChoiceChip widget.
-            children: chips.map((chipLabel) {
-              
-              // Check if THIS specific chip is the one the user selected.
-              final isSelected = _selectedActivity == chipLabel;
-              
-              return ChoiceChip(
-                label: Text(chipLabel),
-                selected: isSelected,
-                selectedColor: theme.primaryColor,
-                labelStyle: TextStyle(
-                  color: isSelected ? Colors.white : theme.primaryColor,
-                ),
-                onSelected: (selected) {
-                  // setState triggers a rebuild of just this widget so the 
-                  // chip physically changes color on the screen.
-                  setState(() {
-                    // If tapped while unselected, save its name. 
-                    // If tapped while already selected, deselect it (set to null).
-                    _selectedActivity = selected ? chipLabel : null;
-                  });
-                },
-              );
-            }).toList(),
+          ActivityChipGroup(
+            chips: currentMode.activityChips,
+            selectedActivity: _selectedActivity,
+            primaryColor: theme.primaryColor,
+            onSelected: (val) => setState(() => _selectedActivity = val),
           ),
           const SizedBox(height: 24),
 
-          // Time Selection Section
           Row(
             children: [
               Expanded(
-                child: _TimeSelector(
+                child: TimeSelector(
                   label: 'Start Time',
                   time: _startTime,
                   onTap: () => _selectTime(context, true),
@@ -138,7 +138,7 @@ class _ActivityInputSheetState extends ConsumerState<ActivityInputSheet> {
               ),
               const SizedBox(width: 16),
               Expanded(
-                child: _TimeSelector(
+                child: TimeSelector(
                   label: 'End Time',
                   time: _endTime,
                   onTap: () => _selectTime(context, false),
@@ -147,57 +147,52 @@ class _ActivityInputSheetState extends ConsumerState<ActivityInputSheet> {
               ),
             ],
           ),
-          const SizedBox(height: 32), 
+          const SizedBox(height: 32),
+
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: _logActivity,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: theme.primaryColor,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              child: const Text(
+                'Log Activity',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
-}
 
-/// Logic Summary:
-/// A helper widget to display a time selection button with a label.
-class _TimeSelector extends StatelessWidget {
-  final String label;
-  final TimeOfDay? time;
-  final VoidCallback onTap;
-  final Color color;
-
-  const _TimeSelector({
-    required this.label,
-    required this.time,
-    required this.onTap,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            color: Colors.grey[600],
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-          ),
+  // Handles the validation and submission logic when the user taps "Log Activity"
+  void _logActivity() {
+    if (_selectedActivity == null || _startTime == null || _endTime == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Please select an activity and time interval.'),
+          backgroundColor: Theme.of(context).primaryColor,
+          behavior: SnackBarBehavior.floating,
         ),
-        const SizedBox(height: 8),
-        OutlinedButton(
-          onPressed: onTap,
-          style: OutlinedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-            side: BorderSide(color: color),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-          child: Text(
-            time?.format(context) ?? 'Select Time',
-            style: TextStyle(color: color),
-          ),
-        ),
-      ],
-    );
+      );
+      return;
+    }
+
+    // Packaging: Bundle all the local state into a single Map.
+    final payload = {
+      'activity': _selectedActivity,
+      'startTime': _startTime,
+      'endTime': _endTime,
+      'date': _selectedDate,
+      'mode': ref.read(athleteModeProvider),
+    };
+
+    // Handoff: Close the bottom sheet and pass the payload back to whoever opened it.
+    Navigator.pop(context, payload);
   }
 }

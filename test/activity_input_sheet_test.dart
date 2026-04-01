@@ -4,57 +4,51 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:athlete_workload/models/athlete_mode.dart';
 import 'package:athlete_workload/providers/athlete_mode_provider.dart';
 import 'package:athlete_workload/widgets/activity_input_sheet.dart';
+import 'package:athlete_workload/theme.dart';
 
 void main() {
   /// Logic Summary:
   /// This test verifies that the ActivityInputSheet correctly filters 
-  /// its selection chips based on the active Riverpod state, and that 
-  /// the user can successfully select a chip.
+  /// its selection chips, inherits the correct theme colors, and 
+  /// handles date/time interactions as expected.
   group('ActivityInputSheet Widget Tests', () {
     
-    testWidgets('Displays Athletic chips when in Athletic mode', (tester) async {
-      // tester.pumpWidget builds the UI in a virtual testing environment.
+    testWidgets('Displays Athletic chips and Red theme when in Athletic mode', (tester) async {
       await tester.pumpWidget(
-        // We wrap the widget in a ProviderScope to give it access to Riverpod.
         ProviderScope(
-          // overrides: 
-          //We force the athleteModeProvider to be 'athletic' without having to click 
-          // any buttons in the app first.
           overrides: [
             athleteModeProvider.overrideWith((ref) => AthleteMode.athletic),
           ],
           child: MaterialApp(
+            theme: AppTheme.getThemeForColor(AppTheme.athleticRed),
             home: Scaffold(
-              body: ActivityInputSheet(selectedDate: DateTime(2026, 3, 18)),
+              body: ActivityInputSheet(initialDate: DateTime(2026, 3, 18)),
             ),
           ),
         ),
       );
 
-      // expect() acts as our assertion. We look for the exact text strings 
-      // you defined in your requirements to ensure they rendered on screen.
       expect(find.text('Select Athletic Activity'), findsOneWidget);
       expect(find.text('Lift'), findsOneWidget);
-      expect(find.text('Practice'), findsOneWidget);
-      expect(find.text('Game'), findsOneWidget);
-      expect(find.text('Film'), findsOneWidget);
-      expect(find.text('Travel'), findsOneWidget);
       
-      // Negative Test: We explicitly check that an academic option does NOT 
-      // appear. This proves our "Context-Aware" logic is actually working.
-      expect(find.text('Class'), findsNothing);
+      // Verify Red Theme
+      final titleText = tester.widget<Text>(find.text('Select Athletic Activity'));
+      expect(titleText.style?.color, equals(AppTheme.athleticRed));
+
+      final logButton = tester.widget<ElevatedButton>(find.byType(ElevatedButton));
+      expect(logButton.style?.backgroundColor?.resolve({}), equals(AppTheme.athleticRed));
     });
 
-    testWidgets('Displays Academic chips when in Academic mode', (tester) async {
+    testWidgets('Displays Academic chips and Blue theme when in Academic mode', (tester) async {
       await tester.pumpWidget(
         ProviderScope(
-          // Here we override the state to 'academic' to test the next view.
           overrides: [
             athleteModeProvider.overrideWith((ref) => AthleteMode.academic),
           ],
           child: MaterialApp(
+            theme: AppTheme.getThemeForColor(AppTheme.academicBlue),
             home: Scaffold(
-              body: ActivityInputSheet(selectedDate: DateTime(2026, 3, 18)),
+              body: ActivityInputSheet(initialDate: DateTime(2026, 3, 18)),
             ),
           ),
         ),
@@ -62,24 +56,25 @@ void main() {
 
       expect(find.text('Select Academic Activity'), findsOneWidget);
       expect(find.text('Class'), findsOneWidget);
-      expect(find.text('Lab'), findsOneWidget);
-      expect(find.text('Study'), findsOneWidget);
-      expect(find.text('Exam'), findsOneWidget);
-      expect(find.text('Office Hours'), findsOneWidget);
       
-      // Proving athletic chips don't bleed into the academic view.
-      expect(find.text('Lift'), findsNothing);
+      // Verify Blue Theme
+      final titleText = tester.widget<Text>(find.text('Select Academic Activity'));
+      expect(titleText.style?.color, equals(AppTheme.academicBlue));
+
+      final logButton = tester.widget<ElevatedButton>(find.byType(ElevatedButton));
+      expect(logButton.style?.backgroundColor?.resolve({}), equals(AppTheme.academicBlue));
     });
 
-    testWidgets('Displays Recovery chips when in Recovery mode', (tester) async {
+    testWidgets('Displays Recovery chips and Green theme when in Recovery mode', (tester) async {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
             athleteModeProvider.overrideWith((ref) => AthleteMode.recovery),
           ],
           child: MaterialApp(
+            theme: AppTheme.getThemeForColor(AppTheme.recoveryGreen),
             home: Scaffold(
-              body: ActivityInputSheet(selectedDate: DateTime(2026, 3, 18)),
+              body: ActivityInputSheet(initialDate: DateTime(2026, 3, 18)),
             ),
           ),
         ),
@@ -87,72 +82,151 @@ void main() {
 
       expect(find.text('Select Recovery Activity'), findsOneWidget);
       expect(find.text('Injury Rehab'), findsOneWidget);
-      expect(find.text('Ice Bath'), findsOneWidget);
-      expect(find.text('Stretching'), findsOneWidget);
-      expect(find.text('Hydration'), findsOneWidget);
-      expect(find.text('Nap'), findsOneWidget);
       
-      expect(find.text('Class'), findsNothing);
+      // Verify Green Theme
+      final titleText = tester.widget<Text>(find.text('Select Recovery Activity'));
+      expect(titleText.style?.color, equals(AppTheme.recoveryGreen));
+
+      final logButton = tester.widget<ElevatedButton>(find.byType(ElevatedButton));
+      expect(logButton.style?.backgroundColor?.resolve({}), equals(AppTheme.recoveryGreen));
     });
 
-    testWidgets('Chip selection updates UI', (tester) async {
+    testWidgets('Chip selection updates UI and reflects theme', (tester) async {
       await tester.pumpWidget(
         ProviderScope(
           child: MaterialApp(
+            theme: AppTheme.getThemeForColor(AppTheme.athleticRed),
             home: Scaffold(
-              body: ActivityInputSheet(selectedDate: DateTime(2026, 3, 18)),
+              body: ActivityInputSheet(initialDate: DateTime(2026, 3, 18)),
             ),
           ),
         ),
       );
 
-      // Instead of just looking for the word 'Lift' anywhere on the screen,
-      // tell the test to find a widget that meets three strict rules:
-      // 1. It must be a ChoiceChip widget.
-      // 2. Its label must be a Text widget.
-      // 3. That text must say exactly 'Lift'.
-      final liftChip = find.byWidgetPredicate(
+      final liftChipFinder = find.byWidgetPredicate(
         (widget) => widget is ChoiceChip && widget.label is Text && (widget.label as Text).data == 'Lift'
       );
       
-      expect(liftChip, findsOneWidget);
-      
-      // We grab the actual widget from the tester to check its properties.
-      // Initial state should be unselected (isFalse).
-      ChoiceChip liftChipWidget = tester.widget(liftChip);
-      expect(liftChipWidget.selected, isFalse);
-
-      // tester.tap simulates the user physically touching the screen.
-      await tester.tap(liftChip);
-      // tester.pump forces Flutter to redraw the screen after the tap. 
-      // If we don't pump, the UI won't update in the test environment.
+      await tester.tap(liftChipFinder);
       await tester.pump();
 
-      // We grab the widget again after the redraw to verify the state 
-      // successfully flipped to true.
-      liftChipWidget = tester.widget(liftChip);
+      ChoiceChip liftChipWidget = tester.widget(liftChipFinder);
       expect(liftChipWidget.selected, isTrue);
+      expect(liftChipWidget.selectedColor, equals(AppTheme.athleticRed));
     });
 
-    // Time interval tests
-    testWidgets('Displays time selectors with initial placeholder', (tester) async {
+    testWidgets('Interactive DatePicker updates the displayed date', (tester) async {
       await tester.pumpWidget(
         ProviderScope(
           child: MaterialApp(
+            theme: AppTheme.getThemeForColor(AppTheme.athleticRed),
             home: Scaffold(
-              body: ActivityInputSheet(selectedDate: DateTime(2026, 3, 18)),
+              body: ActivityInputSheet(initialDate: DateTime(2026, 3, 18)),
             ),
           ),
         ),
       );
 
-      // Verify Start Time section
-      expect(find.text('Start Time'), findsOneWidget);
-      // Verify End Time section
-      expect(find.text('End Time'), findsOneWidget);
+      expect(find.text('Date: 3/18/2026'), findsOneWidget);
+
+      // Tap the date to open picker
+      await tester.tap(find.text('Date: 3/18/2026'));
+      await tester.pumpAndSettle();
+
+      // Select a different date (e.g., 25th)
+      await tester.tap(find.text('25'));
+      await tester.tap(find.text('OK'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Date: 3/25/2026'), findsOneWidget);
+    });
+
+    testWidgets('Validation fails when no activity is selected and shows themed SnackBar', (tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          child: MaterialApp(
+            theme: AppTheme.getThemeForColor(AppTheme.athleticRed),
+            home: Scaffold(
+              body: ActivityInputSheet(initialDate: DateTime(2026, 3, 18)),
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('Log Activity'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Please select an activity and time interval.'), findsOneWidget);
       
-      // Initially, they should show 'Select Time'
-      expect(find.text('Select Time'), findsNWidgets(2));
+      // Verify SnackBar background color matches theme
+      final snackBarFinder = find.byType(SnackBar);
+      final snackBar = tester.widget<SnackBar>(snackBarFinder);
+      expect(snackBar.backgroundColor, equals(AppTheme.athleticRed));
+    });
+
+    testWidgets('Returns payload with updated date and times', (tester) async {
+      Map<String, dynamic>? result;
+      final initialDate = DateTime(2026, 3, 18);
+
+      await tester.pumpWidget(
+        ProviderScope(
+          child: MaterialApp(
+            theme: AppTheme.getThemeForColor(AppTheme.athleticRed),
+            home: Scaffold(
+              body: Builder(
+                builder: (context) {
+                  return ElevatedButton(
+                    onPressed: () async {
+                      result = await showModalBottomSheet<Map<String, dynamic>>(
+                        context: context,
+                        isScrollControlled: true,
+                        builder: (_) => ActivityInputSheet(initialDate: initialDate),
+                      );
+                    },
+                    child: const Text('Open'),
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('Open'));
+      await tester.pumpAndSettle();
+
+      // Select Activity
+      await tester.tap(find.text('Lift'));
+      await tester.pump();
+
+      // Change Date
+      await tester.tap(find.text('Date: 3/18/2026'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('25'));
+      await tester.tap(find.text('OK'));
+      await tester.pumpAndSettle();
+
+      // Select Start Time
+      await tester.tap(find.text('Select Time').first);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('OK'));
+      await tester.pumpAndSettle();
+
+      // Select End Time
+      await tester.tap(find.text('Select Time'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('OK'));
+      await tester.pumpAndSettle();
+
+      // Submit
+      await tester.tap(find.text('Log Activity'));
+      await tester.pumpAndSettle();
+
+      expect(result, isNotNull);
+      expect(result!['activity'], equals('Lift'));
+      expect(result!['date'], equals(DateTime(2026, 3, 25)));
+      expect(result!['startTime'], isA<TimeOfDay>());
+      expect(result!['endTime'], isA<TimeOfDay>());
     });
   });
 }

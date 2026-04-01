@@ -54,10 +54,13 @@ Purpose: Implement a persistent FloatingActionButton on the CalendarScreen that 
     [x] Step 2.2.2.2: Date Context & Time Interval Selection
     Purpose: Update the ActivityInputSheet to accept a selected DateTime parameter from the CalendarScreen. Integrate start and end time selection using Flutter’s native TimePicker within the sheet to define the exact day and duration of an activity.
 
-    [ ] Step 2.2.2.3: Log Activity Submission
+    [x] Step 2.2.2.3: Log Activity Submission
     Purpose: Implement the "Log Activity" button to capture the complete data payload (selected date, time interval, and activity chip), preparing it for local state storage.
 
-    [ ] Step 2.2.3: Modal Theme & Interaction Testing
+    [ ] Step 2.2.2.4: Date UI Polish & Future Validation
+    Purpose: To ensure data integrity for the predictive burnout analytics and improve user experience. Convert the Date display in the ActivityInputSheet into an OutlinedButton (matching the TimeSelectors) so it is visually obvious it can be edited. Restrict the native showDatePicker to only allow the current day or future dates by setting firstDate to DateTime.now(), preventing athletes from skewing the predictive algorithm with past data.
+
+    [x] Step 2.2.3: Modal Theme & Interaction Testing
     Purpose: Ensure the modal UI matches the AppTheme colors and implement widget tests to verify that the selection logic correctly filters activities by mode.
 
 [ ] Step 2.3: Local Activity Models & Logging
