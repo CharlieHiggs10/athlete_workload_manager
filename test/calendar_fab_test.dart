@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:athlete_workload/main.dart';
 import 'package:athlete_workload/theme.dart';
+import 'package:athlete_workload/providers/activity_provider.dart';
 
 void main() {
   testWidgets('FloatingActionButton should trigger a placeholder ModalBottomSheet', (WidgetTester tester) async {
@@ -46,5 +47,58 @@ void main() {
     await tester.tap(find.byTooltip('ATHLETIC'));
     await tester.pumpAndSettle();
     expect(getFabColor(tester), AppTheme.athleticRed);
+  });
+
+  testWidgets('Logging an activity updates the activityProvider', (WidgetTester tester) async {
+    final container = ProviderContainer();
+    await tester.pumpWidget(UncontrolledProviderScope(
+      container: container,
+      child: const MyApp(),
+    ));
+
+    // Open Bottom Sheet
+    await tester.tap(find.byType(FloatingActionButton));
+    await tester.pumpAndSettle();
+
+    // Select an activity chip (e.g., 'Practice')
+    await tester.tap(find.text('Practice'));
+    await tester.pumpAndSettle();
+
+    // Select Start Time - Tap the "Select Time" text inside the first TimeSelector
+    await tester.tap(find.text('Select Time').first);
+    await tester.pumpAndSettle();
+    
+    // Tap "OK" on the TimePicker. Use a more robust finder.
+    final okFinder = find.text('OK');
+    if (okFinder.evaluate().isNotEmpty) {
+      await tester.tap(okFinder);
+    } else {
+      // Fallback: tap the last TextButton if OK is not found by text
+      await tester.tap(find.byType(TextButton).last);
+    }
+    await tester.pumpAndSettle();
+
+    // Select End Time - Tap the "Select Time" text that remains
+    await tester.tap(find.text('Select Time'));
+    await tester.pumpAndSettle();
+    
+    if (okFinder.evaluate().isNotEmpty) {
+      await tester.tap(okFinder);
+    } else {
+      await tester.tap(find.byType(TextButton).last);
+    }
+    await tester.pumpAndSettle();
+
+    // Tap Log Activity
+    await tester.tap(find.text('Log Activity'));
+    await tester.pumpAndSettle();
+
+    // Verify Bottom Sheet is closed
+    expect(find.byType(BottomSheet), findsNothing);
+
+    // Verify the activity is added to the provider
+    final activities = container.read(activityProvider);
+    expect(activities.length, 1);
+    expect(activities[0].title, 'Practice');
   });
 }

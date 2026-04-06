@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/athlete_mode.dart';
+import '../models/activity_model.dart';
 import '../providers/athlete_mode_provider.dart';
+import '../providers/activity_provider.dart';
 import '../widgets/activity_input_sheet.dart';
 import '../theme.dart';
 
@@ -65,7 +67,7 @@ class CalendarScreen extends ConsumerWidget {
           ),
         ),
         floatingActionButton: FloatingActionButton(
-          onPressed: () => _showActivityBottomSheet(context, currentMode),
+          onPressed: () => _showActivityBottomSheet(context, ref, currentMode),
           tooltip: 'Add Activity',
           backgroundColor: themeData.primaryColor,
           foregroundColor: Colors.white,
@@ -76,7 +78,7 @@ class CalendarScreen extends ConsumerWidget {
   }
 
   /// Displays the ActivityInputSheet within a Modal Bottom Sheet.
-  Future<void> _showActivityBottomSheet(BuildContext context, AthleteMode mode) async {
+  Future<void> _showActivityBottomSheet(BuildContext context, WidgetRef ref, AthleteMode mode) async {
     final result = await showModalBottomSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
@@ -91,10 +93,18 @@ class CalendarScreen extends ConsumerWidget {
     );
 
     if (result != null) {
-      // The payload has been successfully captured.
-      // In Step 2.3, we will implement the global Riverpod StateNotifier
-      // and ActivityModel to persist this data locally.
-      debugPrint('Captured Activity: $result');
+      // Map the raw payload into a strictly typed ActivityModel.
+      final activity = ActivityModel(
+        id: DateTime.now().toString(),
+        title: result['activity'] as String,
+        date: result['date'] as DateTime,
+        startTime: result['startTime'] as TimeOfDay,
+        endTime: result['endTime'] as TimeOfDay,
+        category: result['mode'] as AthleteMode,
+      );
+
+      // Save it to the global state.
+      ref.read(activityProvider.notifier).addActivity(activity);
     }
   }
 

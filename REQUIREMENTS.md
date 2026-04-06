@@ -74,8 +74,17 @@ Purpose: To define the data structure for "Activities," establish a global memor
     [x] Step 2.3.2: The Local State Vault (ActivityProvider)
     Purpose: Create a Riverpod StateNotifier (or Notifier) in your /providers folder. This acts as the app's short-term memory before Firebase is introduced. It will hold a List<ActivityModel> and contain the addActivity(ActivityModel activity) logic to safely update the global schedule.
 
-    [ ] Step 2.3.3: The Save Pipeline (Calendar Integration)
+    [x] Step 2.3.3: The Save Pipeline (Calendar Integration)
     Purpose: Update the CalendarScreen's Floating Action Button logic. When the showModalBottomSheet finishes and returns the raw data payload, this step converts that payload into a formal ActivityModel and passes it to the ActivityProvider's add method, officially saving the data.
+
+Step 2.4: Activity Rendering & The Overview Tab
+Purpose: To complete Milestone 1 by rendering saved activities as dynamic UI cards and adding a global "Overview" mode to see the entire day's schedule at a glance.
+
+    [ ] Step 2.4.1: The Activity Card Widget
+    Purpose: Create a reusable UI component (`ActivityCard`) in `/widgets` that cleanly displays the title, time interval, and an icon for a single `ActivityModel`, inheriting its colors from the active `AthleteMode`.
+
+    [ ] Step 2.4.2: The Overview Tab & Calendar Rendering
+    Purpose: Update the `CalendarScreen` header to include a fourth "Overview" (Home) icon. Update the body to `ref.watch` the `activityProvider` and render a `ListView.builder` of `ActivityCard`s. If the "Overview" tab is selected, display all activities for the day in chronological order; otherwise, filter by the active `AthleteMode`.
 
 Phase 3: Milestone 2 - Full Integration & Analytics
 
