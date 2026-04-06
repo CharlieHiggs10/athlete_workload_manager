@@ -71,7 +71,7 @@ Purpose: To define the data structure for "Activities," establish a global memor
     [x] Step 2.3.1: The ActivityModel Data Class
     Purpose: Create a strictly typed Dart class in your /models folder to replace the raw Map payload. This class acts as the blueprint, ensuring every logged event has an id, title (the chip string), date, startTime, endTime, and category (AthleteMode).
 
-    [ ] Step 2.3.2: The Local State Vault (ActivityProvider)
+    [x] Step 2.3.2: The Local State Vault (ActivityProvider)
     Purpose: Create a Riverpod StateNotifier (or Notifier) in your /providers folder. This acts as the app's short-term memory before Firebase is introduced. It will hold a List<ActivityModel> and contain the addActivity(ActivityModel activity) logic to safely update the global schedule.
 
     [ ] Step 2.3.3: The Save Pipeline (Calendar Integration)

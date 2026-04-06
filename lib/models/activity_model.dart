@@ -42,6 +42,8 @@ class ActivityModel {
     );
   }
 
+// Override the == opperator because this will make Riverpod now compare the actual data to see if 
+// a full rebuild of the UI is needed or not, saving device battery and other processing power.  
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
