@@ -80,11 +80,35 @@ Purpose: To define the data structure for "Activities," establish a global memor
 Step 2.4: Activity Rendering & The Overview Tab
 Purpose: To complete Milestone 1 by rendering saved activities as dynamic UI cards and adding a global "Overview" mode to see the entire day's schedule at a glance.
 
-    [ ] Step 2.4.1: The Activity Card Widget
+    [x] Step 2.4.1: The Activity Card Widget
     Purpose: Create a reusable UI component (`ActivityCard`) in `/widgets` that cleanly displays the title, time interval, and an icon for a single `ActivityModel`, inheriting its colors from the active `AthleteMode`.
 
-    [ ] Step 2.4.2: The Overview Tab & Calendar Rendering
+    [x] Step 2.4.2: The Overview Tab & Calendar Rendering
     Purpose: Update the `CalendarScreen` header to include a fourth "Overview" (Home) icon. Update the body to `ref.watch` the `activityProvider` and render a `ListView.builder` of `ActivityCard`s. If the "Overview" tab is selected, display all activities for the day in chronological order; otherwise, filter by the active `AthleteMode`.
+
+Step 2.5: Activity Modification (Edit & Delete)
+Purpose: To allow users to correct mistakes by editing or removing existing activities from their schedule.
+
+    [ ] Step 2.5.1: Vault Modification Methods
+    Purpose: Update the `ActivityProvider` to include `updateActivity(ActivityModel updated)` and `deleteActivity(String id)` methods, ensuring the state remains immutable during these operations.
+
+    [ ] Step 2.5.2: The Edit Sheet State
+    Purpose: Update the `ActivityInputSheet` to accept an optional `ActivityModel? existingActivity`. If provided, pre-fill the form with its data, change the submit button to "Update Activity", and add a "Delete" icon button to the top of the sheet.
+
+    [ ] Step 2.5.3: Card Interaction
+    Purpose: Wrap the `ActivityCard` in an `InkWell` or `GestureDetector`. On tap, open the `ActivityInputSheet` and pass the tapped `ActivityModel` into it, allowing the user to trigger the save/delete pipeline.
+
+Step 2.6: Advanced Time Filtering & Grouping
+Purpose: To distinguish between today's immediate schedule and future planning, and to restrict where activities can be logged.
+
+    [ ] Step 2.6.1: The "Today Only" Overview
+    Purpose: Update the `ref.watch` logic in `CalendarScreen`. When the "Overview" tab is active, strictly filter the list so `activity.date` matches today's date. 
+
+    [ ] Step 2.6.2: FAB Visibility Control
+    Purpose: Update the `CalendarScreen` to conditionally hide the FloatingActionButton when the Overview tab is active, forcing users to select a specific category tab before adding new activities.
+
+    [ ] Step 2.6.3: Future Grouping on Mode Tabs
+    Purpose: For the Athletic, Academic, and Recovery tabs, allow all future dates to pass through the filter. Update the `ListView` rendering logic to visually group activities by day (e.g., inserting a "Tomorrow" or "Oct 25" header above future cards) so the user knows they aren't looking at today's schedule.
 
 Phase 3: Milestone 2 - Full Integration & Analytics
 
@@ -108,11 +132,9 @@ Purpose: To gather daily subjective data like sleep quality, soreness, and stres
 
 Create a daily check-in form and store the results in a WellnessCheck collection.
 
-[ ] Step 3.4: Predictive Burnout Analytics
-
-Purpose: To calculate a cumulative performance metric and highlight "high-risk" weeks based on the intersection of heavy training and exam schedules.
-
-Develop a logic provider that analyzes the training intensity logs and academic markers to generate visual risk indicators.
+[ ] Step 3.4: Predictive Burnout Analytics (Rolling 7-Day Window)
+Purpose: To calculate a cumulative performance metric and highlight "high-risk" periods based on the intersection of heavy training and exam schedules.
+Develop a logic provider that queries the `WellnessCheck` and `ActivityModel` data. Establish a rolling 7-day window (Today + previous 6 days) for workload calculations, ensuring the algorithm continuously measures cumulative load without an arbitrary weekly reset.
 
 Phase 4: Polish & Performance
 [ ] Step 4.1: Error & Loading States

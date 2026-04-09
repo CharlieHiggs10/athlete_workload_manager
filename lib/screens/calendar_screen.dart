@@ -5,12 +5,13 @@ import '../models/activity_model.dart';
 import '../providers/athlete_mode_provider.dart';
 import '../providers/activity_provider.dart';
 import '../widgets/activity_input_sheet.dart';
+import '../widgets/activity_list_view.dart';
 import '../theme.dart';
 
 /// Logic Summary:
 /// Primary scheduling screen for student-athletes.
 /// Dynamically updates its visual style and icons based on
-/// the active mode (Athletic, Academic, Recovery).
+/// the active mode (Athletic, Academic, Recovery, Overview).
 class CalendarScreen extends ConsumerWidget {
   const CalendarScreen({super.key});
 
@@ -25,6 +26,12 @@ class CalendarScreen extends ConsumerWidget {
         appBar: AppBar(
           title: Text(_getTitleForMode(currentMode)),
           actions: [
+            _ModeToggleIcon(
+              mode: AthleteMode.overview,
+              icon: Icons.home,
+              isActive: currentMode == AthleteMode.overview,
+              onPressed: () => _setMode(ref, AthleteMode.overview),
+            ),
             _ModeToggleIcon(
               mode: AthleteMode.athletic,
               icon: Icons.fitness_center,
@@ -45,26 +52,9 @@ class CalendarScreen extends ConsumerWidget {
             ),
           ],
         ),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                _getHeroIconForMode(currentMode),
-                size: 100,
-                color: themeData.primaryColor,
-              ),
-              const SizedBox(height: 20),
-              Text(
-                '${_getTitleForMode(currentMode)} Calendar View',
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      color: themeData.primaryColor,
-                    ),
-              ),
-              const SizedBox(height: 10),
-              const Text('Activities for today will appear here.'),
-            ],
-          ),
+        body: ActivityListView(
+          currentMode: currentMode,
+          selectedDate: DateTime.now(), // Currently defaulting to today.
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () => _showActivityBottomSheet(context, ref, currentMode),
@@ -79,12 +69,15 @@ class CalendarScreen extends ConsumerWidget {
 
   /// Displays the ActivityInputSheet within a Modal Bottom Sheet.
   Future<void> _showActivityBottomSheet(BuildContext context, WidgetRef ref, AthleteMode mode) async {
+    // If in overview, default to athletic for new activities.
+    final logMode = mode == AthleteMode.overview ? AthleteMode.athletic : mode;
+
     final result = await showModalBottomSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       builder: (context) {
         return Theme(
-          data: _getThemeForMode(mode),
+          data: _getThemeForMode(logMode),
           child: ActivityInputSheet(
             initialDate: DateTime.now(),
           ),
@@ -93,7 +86,6 @@ class CalendarScreen extends ConsumerWidget {
     );
 
     if (result != null) {
-      // Map the raw payload into a strictly typed ActivityModel.
       final activity = ActivityModel(
         id: DateTime.now().toString(),
         title: result['activity'] as String,
@@ -103,7 +95,6 @@ class CalendarScreen extends ConsumerWidget {
         category: result['mode'] as AthleteMode,
       );
 
-      // Save it to the global state.
       ref.read(activityProvider.notifier).addActivity(activity);
     }
   }
@@ -122,6 +113,8 @@ class CalendarScreen extends ConsumerWidget {
         return AppTheme.getThemeForColor(AppTheme.academicBlue);
       case AthleteMode.recovery:
         return AppTheme.getThemeForColor(AppTheme.recoveryGreen);
+      case AthleteMode.overview:
+        return AppTheme.getThemeForColor(Colors.blueGrey);
     }
   }
 
@@ -134,18 +127,8 @@ class CalendarScreen extends ConsumerWidget {
         return 'Academic';
       case AthleteMode.recovery:
         return 'Recovery';
-    }
-  }
-
-  /// Provides central icons representing the current mode.
-  IconData _getHeroIconForMode(AthleteMode mode) {
-    switch (mode) {
-      case AthleteMode.athletic:
-        return Icons.fitness_center;
-      case AthleteMode.academic:
-        return Icons.school;
-      case AthleteMode.recovery:
-        return Icons.self_improvement;
+      case AthleteMode.overview:
+        return 'Overview';
     }
   }
 }

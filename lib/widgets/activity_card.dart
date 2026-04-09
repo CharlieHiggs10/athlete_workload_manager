@@ -66,6 +66,8 @@ class ActivityCard extends StatelessWidget {
         return AppTheme.academicBlue;
       case AthleteMode.recovery:
         return AppTheme.recoveryGreen;
+      case AthleteMode.overview:
+        return Colors.blueGrey;
     }
   }
 
@@ -78,6 +80,8 @@ class ActivityCard extends StatelessWidget {
         return Icons.school;
       case AthleteMode.recovery:
         return Icons.self_improvement;
+      case AthleteMode.overview:
+        return Icons.home;
     }
   }
 }

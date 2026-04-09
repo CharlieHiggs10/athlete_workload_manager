@@ -13,7 +13,7 @@ void main() {
     // expect: An assertion. 
     // findsOneWidget: Checks that exactly one instance of this text exists.
     expect(find.text('Athletic'), findsOneWidget);
-    expect(find.text('Athletic Calendar View'), findsOneWidget);
+    expect(find.text('No Athletic activities for today.'), findsOneWidget);
     
     // findsAtLeastNWidgets(2): Confirms the icon is visible in at least two places.
     expect(find.byIcon(Icons.fitness_center), findsAtLeastNWidgets(2));
@@ -28,7 +28,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Academic'), findsOneWidget);
-    expect(find.text('Academic Calendar View'), findsOneWidget);
+    expect(find.text('No Academic activities for today.'), findsOneWidget);
     expect(find.byIcon(Icons.school), findsAtLeastNWidgets(2));
 
     await tester.tap(find.byTooltip('RECOVERY'));
@@ -38,7 +38,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Recovery'), findsOneWidget);
-    expect(find.text('Recovery Calendar View'), findsOneWidget);
+    expect(find.text('No Recovery activities for today.'), findsOneWidget);
     expect(find.byIcon(Icons.self_improvement), findsAtLeastNWidgets(2));
   });
 }

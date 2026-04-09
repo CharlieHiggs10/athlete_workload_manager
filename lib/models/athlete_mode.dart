@@ -5,6 +5,7 @@ enum AthleteMode {
   athletic,
   academic,
   recovery,
+  overview,
 }
 
 /// Logic Summary:
@@ -18,6 +19,8 @@ extension AthleteModeChips on AthleteMode {
         return ['Class', 'Lab', 'Study', 'Exam', 'Office Hours'];
       case AthleteMode.recovery:
         return ['Injury Rehab', 'Ice Bath', 'Stretching', 'Hydration', 'Nap'];
+      case AthleteMode.overview:
+        return [];
     }
   }
 }
