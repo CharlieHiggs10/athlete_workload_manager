@@ -18,6 +18,23 @@ class ActivityNotifier extends Notifier<List<ActivityModel>> {
   void addActivity(ActivityModel activity) {
     state = [...state, activity];
   }
+
+  /// Logic Summary:
+  /// Updates an existing activity by mapping over the current list and replacing 
+  /// the model with a matching ID, ensuring a new list is assigned to state.
+  void updateActivity(ActivityModel updatedActivity) {
+    state = [
+      for (final activity in state)
+        if (activity.id == updatedActivity.id) updatedActivity else activity
+    ];
+  }
+
+  /// Logic Summary:
+  /// Deletes an activity by filtering out the ID, ensuring a brand new list is assigned 
+  /// to state to maintain Riverpod immutability.
+  void deleteActivity(String id) {
+    state = state.where((activity) => activity.id != id).toList();
+  }
 }
 
 /// Logic Summary:

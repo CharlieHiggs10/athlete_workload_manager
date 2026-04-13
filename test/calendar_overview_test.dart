@@ -7,21 +7,28 @@ import 'package:athlete_workload/providers/activity_provider.dart';
 import 'package:athlete_workload/models/activity_model.dart';
 import 'package:athlete_workload/widgets/activity_card.dart';
 
-/// Logic Summary:
-/// Verifies that the CalendarScreen correctly renders the Overview tab,
-/// sorts activities chronologically, and filters them based on the active mode.
+// Logic Summary:
+// Widget tests that validate the CalendarScreen's integration with Riverpod.
+// It ensures that the UI accurately reflects the state of the ActivityProvider vault,
+// specifically testing the filtering (Overview vs. Modes), chronological sorting, 
+// and the fallback empty state.
 void main() {
   group('Calendar Overview and Filtering Tests', () {
     testWidgets('Overview tab shows all activities for today', (WidgetTester tester) async {
       final now = DateTime.now();
       
+      // Arrange: Boot up the app wrapped in a ProviderScope so Riverpod is active.
       await tester.pumpWidget(
         ProviderScope(
           child: const MyApp(),
         ),
       );
 
-      // Add activities via the provider directly for testing
+      // Logic block: Bypassing the UI to seed data
+      // Instead of forcing the test to tap the FAB (Floating Action Button) and fill out the bottom sheet, 
+      // grab direct access to the Riverpod container running inside the test.
+      // Then inject two models (one Athletic, one Academic) 
+      // directly into the vault to set up the test conditions.
       final container = ProviderScope.containerOf(tester.element(find.byType(MyApp)));
       container.read(activityProvider.notifier).addActivity(
         ActivityModel(
@@ -44,10 +51,11 @@ void main() {
         ),
       );
 
-      // Switch to Overview tab
+      // Act: Tap the Overview tab and wait for any animations to finish.
       await tester.tap(find.byTooltip('OVERVIEW'));
       await tester.pumpAndSettle();
 
+      // Assert: Verify the Overview tab ignores category filters and shows both items.
       expect(find.text('Overview'), findsOneWidget);
       expect(find.byType(ActivityCard), findsNWidgets(2));
       expect(find.text('Morning Lift'), findsOneWidget);
@@ -63,6 +71,7 @@ void main() {
         ),
       );
 
+      // Arrange: Inject mixed data (Athletic and Academic) into the vault.
       final container = ProviderScope.containerOf(tester.element(find.byType(MyApp)));
       container.read(activityProvider.notifier).addActivity(
         ActivityModel(
@@ -85,7 +94,7 @@ void main() {
         ),
       );
 
-      // Switch to Athletic tab
+      // Act: Navigate specifically to the Athletic tab.
       await tester.tap(find.byTooltip('ATHLETIC'));
       await tester.pumpAndSettle();
 
@@ -104,6 +113,7 @@ void main() {
         ),
       );
 
+      // Arrange: Intentionally inject a 2:00 PM activity BEFORE an 8:00 AM activity.
       final container = ProviderScope.containerOf(tester.element(find.byType(MyApp)));
       container.read(activityProvider.notifier).addActivity(
         ActivityModel(
@@ -126,25 +136,31 @@ void main() {
         ),
       );
 
+      // Act: Open the overview tab to render the list.
       await tester.tap(find.byTooltip('OVERVIEW'));
       await tester.pumpAndSettle();
 
-      // Check order
+      /// `tester.widgetList` extracts the actual widgets currently rendered on the screen.
+      /// By converting it to a List, we can check index [0] to prove the UI sorted 
+      /// the 8:00 AM activity to the top, regardless of injection order.
       final cardList = tester.widgetList<ActivityCard>(find.byType(ActivityCard)).toList();
       expect(cardList[0].activity.title, 'Early Activity');
       expect(cardList[1].activity.title, 'Late Activity');
     });
 
     testWidgets('Shows empty state message when no activities exist', (WidgetTester tester) async {
+      // Arrange: Boot the app with a completely empty Riverpod vault.
       await tester.pumpWidget(
         ProviderScope(
           child: const MyApp(),
         ),
       );
 
+      // Act: Navigate to the Overview tab.
       await tester.tap(find.byTooltip('OVERVIEW'));
       await tester.pumpAndSettle();
 
+      // Assert: Verify the placeholder text and icon render instead of an empty screen.
       expect(find.text('No  activities for today.'), findsOneWidget);
       expect(find.byIcon(Icons.view_agenda), findsOneWidget);
     });

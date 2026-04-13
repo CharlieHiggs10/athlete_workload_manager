@@ -89,14 +89,14 @@ Purpose: To complete Milestone 1 by rendering saved activities as dynamic UI car
 Step 2.5: Activity Modification (Edit & Delete)
 Purpose: To allow users to correct mistakes by editing or removing existing activities from their schedule.
 
-    [ ] Step 2.5.1: Vault Modification Methods
+    [x] Step 2.5.1: Vault Modification Methods
     Purpose: Update the `ActivityProvider` to include `updateActivity(ActivityModel updated)` and `deleteActivity(String id)` methods, ensuring the state remains immutable during these operations.
 
     [ ] Step 2.5.2: The Edit Sheet State
-    Purpose: Update the `ActivityInputSheet` to accept an optional `ActivityModel? existingActivity`. If provided, pre-fill the form with its data, change the submit button to "Update Activity", and add a "Delete" icon button to the top of the sheet.
+    Purpose: Update the `ActivityInputSheet` to accept an optional `ActivityModel? existingActivity`. If provided, pre-fill the form with its data and change the submit button text to "Update Activity".
 
-    [ ] Step 2.5.3: Card Interaction
-    Purpose: Wrap the `ActivityCard` in an `InkWell` or `GestureDetector`. On tap, open the `ActivityInputSheet` and pass the tapped `ActivityModel` into it, allowing the user to trigger the save/delete pipeline.
+    [ ] Step 2.5.3: Card Interaction & Context Menu
+    Purpose: Update the `ActivityCard` to include a trailing `PopupMenuButton` (three dots). The menu should contain two options: "Edit" (which opens the `ActivityInputSheet` and passes the model into it) and "Delete" (which directly calls the `deleteActivity` method on the `activityProvider`).
 
 Step 2.6: Advanced Time Filtering & Grouping
 Purpose: To distinguish between today's immediate schedule and future planning, and to restrict where activities can be logged.
