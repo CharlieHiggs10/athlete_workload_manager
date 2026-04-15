@@ -12,13 +12,33 @@ import '../theme.dart';
 /// Primary scheduling screen for student-athletes.
 /// Dynamically updates its visual style and icons based on
 /// the active mode (Athletic, Academic, Recovery, Overview).
+/// It generates a filtered and sorted list of activities for display.
 class CalendarScreen extends ConsumerWidget {
   const CalendarScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentMode = ref.watch(athleteModeProvider);
+    final activities = ref.watch(activityProvider);
     final themeData = _getThemeForMode(currentMode);
+    final now = DateTime.now();
+
+    // Filter activities based on the active tab and date requirements.
+    // Overview tab is strictly today only; other tabs currently show today's 
+    // activities for their specific category.
+    final filteredActivities = activities.where((activity) {
+      if (currentMode == AthleteMode.overview) {
+        return DateUtils.isSameDay(activity.date, now);
+      }
+      return activity.category == currentMode && DateUtils.isSameDay(activity.date, now);
+    }).toList();
+
+    // Sort chronologically by start time.
+    filteredActivities.sort((a, b) {
+      final aMinutes = a.startTime.hour * 60 + a.startTime.minute;
+      final bMinutes = b.startTime.hour * 60 + b.startTime.minute;
+      return aMinutes.compareTo(bMinutes);
+    });
 
     return Theme(
       data: themeData,
@@ -53,8 +73,8 @@ class CalendarScreen extends ConsumerWidget {
           ],
         ),
         body: ActivityListView(
+          activities: filteredActivities,
           currentMode: currentMode,
-          selectedDate: DateTime.now(), // Currently defaulting to today.
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () => _showActivityBottomSheet(context, ref, currentMode),

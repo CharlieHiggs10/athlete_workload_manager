@@ -1,48 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/athlete_mode.dart';
 import '../models/activity_model.dart';
-import '../providers/activity_provider.dart';
 import '../widgets/activity_card.dart';
 
 /// Logic Summary:
-/// A specialized ListView that watches the activityProvider,
-/// filters activities based on the current mode and date,
-/// and sorts them chronologically for display.
-class ActivityListView extends ConsumerWidget {
+/// A specialized ListView that renders a pre-filtered list of activities,
+/// handling the empty state visualization based on the active mode.
+class ActivityListView extends StatelessWidget {
+  final List<ActivityModel> activities;
   final AthleteMode currentMode;
-  final DateTime selectedDate;
 
   const ActivityListView({
     super.key,
+    required this.activities,
     required this.currentMode,
-    required this.selectedDate,
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final activities = ref.watch(activityProvider);
+  Widget build(BuildContext context) {
     final themeData = Theme.of(context);
 
-    // Filter and sort activities
-    final filteredActivities = activities.where((activity) {
-      // Filter by date
-      final isSameDay = DateUtils.isSameDay(activity.date, selectedDate);
-      if (!isSameDay) return false;
-
-      // Filter by mode if not in overview
-      if (currentMode == AthleteMode.overview) return true;
-      return activity.category == currentMode;
-    }).toList();
-
-    // Sort chronologically by start time
-    filteredActivities.sort((a, b) {
-      final aMinutes = a.startTime.hour * 60 + a.startTime.minute;
-      final bMinutes = b.startTime.hour * 60 + b.startTime.minute;
-      return aMinutes.compareTo(bMinutes);
-    });
-
-    if (filteredActivities.isEmpty) {
+    if (activities.isEmpty) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -66,9 +44,9 @@ class ActivityListView extends ConsumerWidget {
 
     return ListView.builder(
       padding: const EdgeInsets.symmetric(vertical: 8),
-      itemCount: filteredActivities.length,
+      itemCount: activities.length,
       itemBuilder: (context, index) {
-        return ActivityCard(activity: filteredActivities[index]);
+        return ActivityCard(activity: activities[index]);
       },
     );
   }

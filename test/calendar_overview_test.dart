@@ -164,5 +164,51 @@ void main() {
       expect(find.text('No  activities for today.'), findsOneWidget);
       expect(find.byIcon(Icons.view_agenda), findsOneWidget);
     });
+
+    testWidgets('Overview strictly filters for today and excludes future activities', (WidgetTester tester) async {
+      final now = DateTime.now();
+      final tomorrow = now.add(const Duration(days: 1));
+      
+      await tester.pumpWidget(
+        ProviderScope(
+          child: const MyApp(),
+        ),
+      );
+
+      final container = ProviderScope.containerOf(tester.element(find.byType(MyApp)));
+      
+      // Today's activity
+      container.read(activityProvider.notifier).addActivity(
+        ActivityModel(
+          id: 'today_1',
+          title: 'Today Activity',
+          date: now,
+          startTime: const TimeOfDay(hour: 10, minute: 0),
+          endTime: const TimeOfDay(hour: 11, minute: 0),
+          category: AthleteMode.athletic,
+        ),
+      );
+
+      // Tomorrow's activity
+      container.read(activityProvider.notifier).addActivity(
+        ActivityModel(
+          id: 'tomorrow_1',
+          title: 'Future Activity',
+          date: tomorrow,
+          startTime: const TimeOfDay(hour: 10, minute: 0),
+          endTime: const TimeOfDay(hour: 11, minute: 0),
+          category: AthleteMode.athletic,
+        ),
+      );
+
+      // Act: Go to Overview tab
+      await tester.tap(find.byTooltip('OVERVIEW'));
+      await tester.pumpAndSettle();
+
+      // Assert: Should only see Today Activity
+      expect(find.text('Today Activity'), findsOneWidget);
+      expect(find.text('Future Activity'), findsNothing);
+      expect(find.byType(ActivityCard), findsNWidgets(1));
+    });
   });
 }
