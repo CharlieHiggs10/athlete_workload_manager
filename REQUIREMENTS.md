@@ -92,7 +92,7 @@ Purpose: To allow users to correct mistakes by editing or removing existing acti
     [x] Step 2.5.1: Vault Modification Methods
     Purpose: Update the `ActivityProvider` to include `updateActivity(ActivityModel updated)` and `deleteActivity(String id)` methods, ensuring the state remains immutable during these operations.
 
-    [ ] Step 2.5.2: The Edit Sheet State
+    [x] Step 2.5.2: The Edit Sheet State
     Purpose: Update the `ActivityInputSheet` to accept an optional `ActivityModel? existingActivity`. If provided, pre-fill the form with its data and change the submit button text to "Update Activity".
 
     [ ] Step 2.5.3: Card Interaction & Context Menu
