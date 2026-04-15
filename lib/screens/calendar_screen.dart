@@ -24,17 +24,23 @@ class CalendarScreen extends ConsumerWidget {
     final now = DateTime.now();
 
     // Filter activities based on the active tab and date requirements.
-    // Overview tab is strictly today only; other tabs currently show today's 
-    // activities for their specific category.
+    // Overview: Strictly today only.
+    // Mode-specific: Today and all future activities.
+    final today = DateTime(now.year, now.month, now.day);
     final filteredActivities = activities.where((activity) {
+      final isSameDay = DateUtils.isSameDay(activity.date, today);
+      final isFuture = activity.date.isAfter(today);
+
       if (currentMode == AthleteMode.overview) {
-        return DateUtils.isSameDay(activity.date, now);
+        return isSameDay;
       }
-      return activity.category == currentMode && DateUtils.isSameDay(activity.date, now);
+      return activity.category == currentMode && (isSameDay || isFuture);
     }).toList();
 
-    // Sort chronologically by start time.
+    // Sort chronologically by date and then start time.
     filteredActivities.sort((a, b) {
+      final dateComparison = a.date.compareTo(b.date);
+      if (dateComparison != 0) return dateComparison;
       final aMinutes = a.startTime.hour * 60 + a.startTime.minute;
       final bMinutes = b.startTime.hour * 60 + b.startTime.minute;
       return aMinutes.compareTo(bMinutes);

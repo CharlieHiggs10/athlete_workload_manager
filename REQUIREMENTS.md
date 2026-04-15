@@ -104,7 +104,7 @@ Purpose: To distinguish between today's immediate schedule and future planning, 
     [x] Step 2.6.1: The "Today Only" Overview
     Purpose: Update the `ref.watch` logic in `CalendarScreen`. When the "Overview" tab is active, strictly filter the list so `activity.date` matches today's date. 
 
-    [ ] Step 2.6.2: FAB Visibility Control
+    [x] Step 2.6.2: FAB Visibility Control
     Purpose: Update the `CalendarScreen` to conditionally hide the FloatingActionButton when the Overview tab is active, forcing users to select a specific category tab before adding new activities.
 
     [ ] Step 2.6.3: Future Grouping on Mode Tabs

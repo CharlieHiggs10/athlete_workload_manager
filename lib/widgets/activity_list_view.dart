@@ -32,7 +32,7 @@ class ActivityListView extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             Text(
-              'No ${currentMode == AthleteMode.overview ? "" : _getTitleForMode(currentMode)} activities for today.',
+              'No ${currentMode == AthleteMode.overview ? "" : _getTitleForMode(currentMode)} activities ${currentMode == AthleteMode.overview ? "for today" : "scheduled"}.',
               style: themeData.textTheme.titleLarge?.copyWith(
                     color: themeData.primaryColor,
                   ),
@@ -42,13 +42,68 @@ class ActivityListView extends StatelessWidget {
       );
     }
 
-    return ListView.builder(
+    final List<Widget> listItems = [];
+    DateTime? lastDate;
+
+    for (final activity in activities) {
+      if (lastDate == null || !DateUtils.isSameDay(lastDate, activity.date)) {
+        listItems.add(_buildDateHeader(context, activity.date));
+        lastDate = activity.date;
+      }
+      listItems.add(ActivityCard(activity: activity));
+    }
+
+    return ListView(
       padding: const EdgeInsets.symmetric(vertical: 8),
-      itemCount: activities.length,
-      itemBuilder: (context, index) {
-        return ActivityCard(activity: activities[index]);
-      },
+      children: listItems,
     );
+  }
+
+  /// Builds a visual header with the date string (e.g., "Today", "Tomorrow", "Oct 25").
+  Widget _buildDateHeader(BuildContext context, DateTime date) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final tomorrow = today.add(const Duration(days: 1));
+
+    String label;
+    if (DateUtils.isSameDay(date, today)) {
+      label = 'Today';
+    } else if (DateUtils.isSameDay(date, tomorrow)) {
+      label = 'Tomorrow';
+    } else {
+      label = '${_getMonthName(date.month)} ${date.day}';
+    }
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      child: Text(
+        label,
+        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+              color: Theme.of(context).primaryColor,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1.2,
+            ),
+      ),
+    );
+  }
+
+  /// Simple manual month name mapper.
+  String _getMonthName(int month) {
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec'
+    ];
+    return months[month - 1];
   }
 
   /// Provides central icons representing the current mode for the empty state.
