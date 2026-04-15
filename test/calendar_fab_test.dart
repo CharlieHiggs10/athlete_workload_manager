@@ -49,6 +49,27 @@ void main() {
     expect(getFabColor(tester), AppTheme.athleticRed);
   });
 
+  testWidgets('FloatingActionButton should be hidden in Overview mode', (WidgetTester tester) async {
+    await tester.pumpWidget(const ProviderScope(child: MyApp()));
+
+    // Starts in Athletic mode - FAB should be visible.
+    expect(find.byType(FloatingActionButton), findsOneWidget);
+
+    // Switch to Overview mode.
+    await tester.tap(find.byTooltip('OVERVIEW'));
+    await tester.pumpAndSettle();
+
+    // Verify FAB is hidden.
+    expect(find.byType(FloatingActionButton), findsNothing);
+
+    // Switch to Academic mode.
+    await tester.tap(find.byTooltip('ACADEMIC'));
+    await tester.pumpAndSettle();
+
+    // Verify FAB is visible again.
+    expect(find.byType(FloatingActionButton), findsOneWidget);
+  });
+
   testWidgets('Logging an activity updates the activityProvider', (WidgetTester tester) async {
     final container = ProviderContainer();
     await tester.pumpWidget(UncontrolledProviderScope(

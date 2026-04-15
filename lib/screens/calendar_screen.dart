@@ -76,13 +76,15 @@ class CalendarScreen extends ConsumerWidget {
           activities: filteredActivities,
           currentMode: currentMode,
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () => _showActivityBottomSheet(context, ref, currentMode),
-          tooltip: 'Add Activity',
-          backgroundColor: themeData.primaryColor,
-          foregroundColor: Colors.white,
-          child: const Icon(Icons.add),
-        ),
+        floatingActionButton: currentMode == AthleteMode.overview
+            ? null
+            : FloatingActionButton(
+                onPressed: () => _showActivityBottomSheet(context, ref, currentMode),
+                tooltip: 'Add Activity',
+                backgroundColor: themeData.primaryColor,
+                foregroundColor: Colors.white,
+                child: const Icon(Icons.add),
+              ),
       ),
     );
   }
