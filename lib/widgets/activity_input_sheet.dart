@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/athlete_mode.dart';
+import '../models/activity_model.dart';
 import '../providers/athlete_mode_provider.dart';
 import 'time_selector.dart';
 import 'activity_chip_group.dart';
+import 'date_selector.dart';
 
 // Logic Summary:
 // Bottom sheet that displays mode-specific activity chips
@@ -12,7 +14,13 @@ import 'activity_chip_group.dart';
 // Also allows selecting a start and end time for the activity.
 class ActivityInputSheet extends ConsumerStatefulWidget {
   final DateTime initialDate;
-  const ActivityInputSheet({super.key, required this.initialDate});
+  final ActivityModel? existingActivity;
+
+  const ActivityInputSheet({
+    super.key,
+    required this.initialDate,
+    this.existingActivity,
+  });
 
   @override
   ConsumerState<ActivityInputSheet> createState() => _ActivityInputSheetState();
@@ -32,8 +40,16 @@ class _ActivityInputSheetState extends ConsumerState<ActivityInputSheet> {
   @override
   void initState() {
     super.initState();
-    // Initialize our local tracking date with the date passed down from the calendar.
-    _selectedDate = widget.initialDate;
+    // If we're editing an existing activity, pre-populate the local state.
+    if (widget.existingActivity != null) {
+      _selectedDate = widget.existingActivity!.date;
+      _startTime = widget.existingActivity!.startTime;
+      _endTime = widget.existingActivity!.endTime;
+      _selectedActivity = widget.existingActivity!.title;
+    } else {
+      // Initialize our local tracking date with the date passed down from the calendar.
+      _selectedDate = widget.initialDate;
+    }
   }
 
   // Triggers the native Flutter DatePicker.
@@ -95,43 +111,11 @@ class _ActivityInputSheetState extends ConsumerState<ActivityInputSheet> {
           ),
           const SizedBox(height: 16),
           
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Date',
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 8),
-              OutlinedButton(
-                onPressed: () => _selectDate(context),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
-                  side: BorderSide(color: theme.primaryColor),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.calendar_today, size: 16, color: theme.primaryColor),
-                    const SizedBox(width: 8),
-                    Text(
-                      dateString,
-                      style: TextStyle(
-                        color: theme.primaryColor,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+          DateSelector(
+            label: 'Date',
+            dateString: dateString,
+            onTap: () => _selectDate(context),
+            color: theme.primaryColor,
           ),
           const SizedBox(height: 16),
           
@@ -176,9 +160,9 @@ class _ActivityInputSheetState extends ConsumerState<ActivityInputSheet> {
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
-              child: const Text(
-                'Log Activity',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              child: Text(
+                widget.existingActivity != null ? 'Update Activity' : 'Log Activity',
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
             ),
           ),
