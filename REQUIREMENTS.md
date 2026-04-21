@@ -107,24 +107,42 @@ Purpose: To distinguish between today's immediate schedule and future planning, 
     [x] Step 2.6.2: FAB Visibility Control
     Purpose: Update the `CalendarScreen` to conditionally hide the FloatingActionButton when the Overview tab is active, forcing users to select a specific category tab before adding new activities.
 
-    [ ] Step 2.6.3: Future Grouping on Mode Tabs
+    [x] Step 2.6.3: Future Grouping on Mode Tabs
     Purpose: For the Athletic, Academic, and Recovery tabs, allow all future dates to pass through the filter. Update the `ListView` rendering logic to visually group activities by day (e.g., inserting a "Tomorrow" or "Oct 25" header above future cards) so the user knows they aren't looking at today's schedule.
 
 Phase 3: Milestone 2 - Full Integration & Analytics
 
 Goal: Connect the app to Firebase and implement the predictive burnout analytics.
 
-[ ] Step 3.1: Firebase Authentication & Profiles
+Step 3.1: Firebase Authentication & Profiles
+Purpose: To establish the cloud connection, secure user data, and store athlete-specific metadata like sport and position.
 
-Purpose: To secure user data and store athlete-specific metadata like sport and position.
+    [ ] Step 3.1.1: Firebase CLI & Initialization
+    Purpose: Install the Firebase CLI, run `flutterfire configure` to generate the native configurations, and initialize Firebase inside `main.dart`.
 
-Implement AuthService with Google Sign-In and a UserProfile model.
+    [ ] Step 3.1.2: The UserProfile Model
+    Purpose: Create a data class to hold athlete metadata (e.g., uid, name, sport, position).
 
-[ ] Step 3.2: Firestore Syncing
+    [ ] Step 3.1.3: The AuthService
+    Purpose: Create a dedicated service class to handle Google Sign-In and Firebase Auth communication.
 
-Purpose: To persist the calendar data across sessions so the athlete's schedule is always available.
+    [ ] Step 3.1.4: The Auth State Provider
+    Purpose: Create a Riverpod provider to listen to Firebase Auth state changes and expose the current `UserProfile` to the rest of the app.
 
-Replace local state with DatabaseService to perform CRUD operations on the athlete's schedules.
+    [ ] Step 3.1.5: The Login Gateway UI
+    Purpose: Build a simple Login Screen and update `main.dart` to automatically route users to either the Calendar Screen or the Login Screen based on their Riverpod auth state.
+
+Step 3.2: Firestore Syncing
+Purpose: To persist the calendar data across sessions so the athlete's schedule is always available and backed up in the cloud.
+
+    [ ] Step 3.2.1: The DatabaseService
+    Purpose: Create a service class dedicated to executing Firestore CRUD operations (Create, Read, Update, Delete) on a `users/{uid}/activities` collection.
+
+    [ ] Step 3.2.2: Cloud-Syncing the Vault (ActivityProvider)
+    Purpose: Refactor the `ActivityProvider` so that instead of managing a local list, it reads from and writes to the new `DatabaseService`, ensuring all UI changes are immediately synced to the cloud.
+
+    [ ] Step 3.2.3: The Loading & Error States
+    Purpose: Update the `CalendarScreen` to gracefully handle network delays by using Riverpod's `AsyncValue` to show loading spinners and error messages while fetching Firestore data.
 
 [ ] Step 3.3: Wellness & Recovery Check-ins
 

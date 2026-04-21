@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "989932473731",
+    "project_id": "athlete-workload-app",
+    "storage_bucket": "athlete-workload-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:989932473731:android:91c4758f3c389edbc37ab6",
+        "android_client_info": {
+          "package_name": "com.example.athlete_workload"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "989932473731-so1f351dvqeipbnvkqqno05kpaabfnu3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBzHeJSKNUu5nwUnQqP2-8S88ouiW1GvGU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "989932473731-so1f351dvqeipbnvkqqno05kpaabfnu3.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "989932473731-p6rthmrf417gab9shr1dqmhj7cun9mfd.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.athleteWorkload"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
