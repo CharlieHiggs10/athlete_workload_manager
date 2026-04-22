@@ -117,10 +117,10 @@ Goal: Connect the app to Firebase and implement the predictive burnout analytics
 Step 3.1: Firebase Authentication & Profiles
 Purpose: To establish the cloud connection, secure user data, and store athlete-specific metadata like sport and position.
 
-    [ ] Step 3.1.1: Firebase CLI & Initialization
+    [x] Step 3.1.1: Firebase CLI & Initialization
     Purpose: Install the Firebase CLI, run `flutterfire configure` to generate the native configurations, and initialize Firebase inside `main.dart`.
 
-    [ ] Step 3.1.2: The UserProfile Model
+    [x] Step 3.1.2: The UserProfile Model
     Purpose: Create a data class to hold athlete metadata (e.g., uid, name, sport, position).
 
     [ ] Step 3.1.3: The AuthService
