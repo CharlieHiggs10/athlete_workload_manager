@@ -123,7 +123,7 @@ Purpose: To establish the cloud connection, secure user data, and store athlete-
     [x] Step 3.1.2: The UserProfile Model
     Purpose: Create a data class to hold athlete metadata (e.g., uid, name, sport, position).
 
-    [ ] Step 3.1.3: The AuthService
+    [x] Step 3.1.3: The AuthService
     Purpose: Create a dedicated service class to handle Google Sign-In and Firebase Auth communication.
 
     [ ] Step 3.1.4: The Auth State Provider
