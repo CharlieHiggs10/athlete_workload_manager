@@ -126,10 +126,10 @@ Purpose: To establish the cloud connection, secure user data, and store athlete-
     [x] Step 3.1.3: The AuthService
     Purpose: Create a dedicated service class to handle Google Sign-In and Firebase Auth communication.
 
-    [ ] Step 3.1.4: The Auth State Provider
+    [x] Step 3.1.4: The Auth State Provider
     Purpose: Create a Riverpod provider to listen to Firebase Auth state changes and expose the current `UserProfile` to the rest of the app.
 
-    [ ] Step 3.1.5: The Login Gateway UI
+    [x] Step 3.1.5: The Login Gateway UI
     Purpose: Build a simple Login Screen and update `main.dart` to automatically route users to either the Calendar Screen or the Login Screen based on their Riverpod auth state.
 
 Step 3.2: Firestore Syncing

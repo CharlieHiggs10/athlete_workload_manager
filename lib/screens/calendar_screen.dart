@@ -4,6 +4,7 @@ import '../models/athlete_mode.dart';
 import '../models/activity_model.dart';
 import '../providers/athlete_mode_provider.dart';
 import '../providers/activity_provider.dart';
+import '../providers/auth_provider.dart';
 import '../widgets/activity_input_sheet.dart';
 import '../widgets/activity_list_view.dart';
 import '../theme.dart';
@@ -50,6 +51,11 @@ class CalendarScreen extends ConsumerWidget {
       data: themeData,
       child: Scaffold(
         appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () => ref.read(authServiceProvider).signOut(),
+            tooltip: 'Sign Out',
+          ),
           title: Text(_getTitleForMode(currentMode)),
           actions: [
             _ModeToggleIcon(

@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'theme.dart';
-import 'screens/calendar_screen.dart';
+import 'screens/auth_gate.dart';
 
 /// Logic Summary:
 /// Entry point for the application.
@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Athlete Workload',
       theme: AppTheme.lightTheme,
-      home: const CalendarScreen(),
+      home: const AuthGate(),
     );
   }
 }
