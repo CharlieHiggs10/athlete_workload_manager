@@ -1,142 +1,160 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:athlete_workload/providers/activity_provider.dart';
+import 'package:athlete_workload/providers/auth_provider.dart';
+import 'package:athlete_workload/providers/firestore_provider.dart';
 import 'package:athlete_workload/models/activity_model.dart';
 import 'package:athlete_workload/models/athlete_mode.dart';
+import 'package:athlete_workload/models/user_profile.dart';
 import 'package:flutter/material.dart';
 
-// Logic Summary:
-// Unit tests focused exclusively on the data layer (ActivityProvider).
-// Unlike widget tests that require a simulated UI, these tests run purely 
-// in Dart memory to guarantee your state management logic is bulletproof 
-// and immutable before it ever touches a screen.
 void main() {
-  group('ActivityProvider Tests', () {
-    
-    // Logic block: Headless Riverpod Environment
-    // Because pure unit tests don't have a widget tree (and therefore no ProviderScope),
-    // we must create a standalone `ProviderContainer`. This acts as an isolated,
-    // invisible bubble to hold your app's state for the duration of the test.
-    // `addTearDown` ensures the bubble pops after the test, preventing memory leaks 
-    // between different test cases.
+  group('ActivityProvider Tests (Cloud Sync)', () {
+    late FakeFirebaseFirestore fakeFirestore;
+    const testUser = UserProfile(uid: 'test_user', email: 'test@example.com');
+
+    setUp(() {
+      fakeFirestore = FakeFirebaseFirestore();
+    });
+
+    /// Logic Summary:
+    /// Creates a ProviderContainer with necessary overrides for Firebase and Auth.
+    /// This allows us to test the provider in an isolated, controlled environment.
     ProviderContainer createContainer() {
-      final container = ProviderContainer();
+      final container = ProviderContainer(
+        overrides: [
+          // Mock the auth state to simulate a logged-in user.
+          authStateProvider.overrideWith((ref) => Stream.value(testUser)),
+          // Mock the Firestore instance with a fake one for in-memory testing.
+          firestoreInstanceProvider.overrideWith((ref) => fakeFirestore),
+        ],
+      );
       addTearDown(container.dispose);
       return container;
     }
 
-    test('Initial state should be an empty list', () {
+    test('Initial state should be empty while stream is loading', () {
       final container = createContainer();
-      
-      // Act & Assert: Verify the vault boots up completely clean.
-      // This ensures we never accidentally launch the app with null data that could crash the UI.
       final state = container.read(activityProvider);
-      
-      expect(state, isEmpty, reason: 'The activity list should start empty.');
+      expect(state, isEmpty);
     });
 
-    test('addActivity should immutably update the list with a new activity', () {
+    test('should reflect activities added to Firestore', () async {
       final container = createContainer();
       
-      final testActivity = ActivityModel(
-        id: 'test-1',
+      // Ensure auth is ready
+      await container.read(authStateProvider.future);
+      
+      final activity = ActivityModel(
+        id: 'act_1',
         title: 'Lift',
-        date: DateTime(2026, 4, 6),
+        date: DateTime(2026, 4, 30),
         startTime: const TimeOfDay(hour: 8, minute: 0),
-        endTime: const TimeOfDay(hour: 9, minute: 30),
+        endTime: const TimeOfDay(hour: 9, minute: 0),
         category: AthleteMode.athletic,
       );
 
-      // Logic block: The State Modification Handshake
-      // We access the `.notifier` to issue the command (addActivity). 
-      // However, we must then read the base provider (`activityProvider`) to check the result. 
-      // This proves Riverpod successfully caught the command, adhered to immutability rules, 
-      // and generated a brand new list containing our model.
-      container.read(activityProvider.notifier).addActivity(testActivity);
+      // Add activity directly to Firestore
+      await fakeFirestore
+          .collection('users')
+          .doc(testUser.uid)
+          .collection('activities')
+          .doc(activity.id)
+          .set(activity.toMap());
 
-      final state = container.read(activityProvider);
+      // Wait for the stream provider to emit
+      final activities = await container.read(activitiesStreamProvider.future);
       
-      expect(state.length, 1);
-      expect(state.first, testActivity);
+      expect(activities.length, 1);
+      expect(activities.first.title, 'Lift');
+      expect(container.read(activityProvider), activities);
     });
 
-    test('Multiple activities should be appended in order', () {
+    test('addActivity should write to Firestore', () async {
       final container = createContainer();
       
-      final activity1 = ActivityModel(
-        id: 'test-1',
-        title: 'Lift',
-        date: DateTime(2026, 4, 6),
-        startTime: const TimeOfDay(hour: 8, minute: 0),
-        endTime: const TimeOfDay(hour: 9, minute: 30),
-        category: AthleteMode.athletic,
-      );
-
-      final activity2 = ActivityModel(
-        id: 'test-2',
+      // Ensure auth is ready
+      await container.read(authStateProvider.future);
+      
+      final activity = ActivityModel(
+        id: 'act_2',
         title: 'Study',
-        date: DateTime(2026, 4, 6),
+        date: DateTime(2026, 4, 30),
         startTime: const TimeOfDay(hour: 10, minute: 0),
-        endTime: const TimeOfDay(hour: 12, minute: 0),
+        endTime: const TimeOfDay(hour: 11, minute: 0),
         category: AthleteMode.academic,
       );
 
-      // Act: Fire multiple modifications rapidly.
-      final notifier = container.read(activityProvider.notifier);
-      notifier.addActivity(activity1);
-      notifier.addActivity(activity2);
+      await container.read(activityProvider.notifier).addActivity(activity);
 
-      // Assert: Verify the vault didn't overwrite the first activity, 
-      // but correctly accumulated both in chronological entry order.
-      final state = container.read(activityProvider);
+      final doc = await fakeFirestore
+          .collection('users')
+          .doc(testUser.uid)
+          .collection('activities')
+          .doc('act_2')
+          .get();
       
-      expect(state.length, 2);
-      expect(state[0], activity1);
-      expect(state[1], activity2);
+      expect(doc.exists, isTrue);
+      expect(doc.data()?['title'], 'Study');
     });
 
-    test('updateActivity should replace an existing activity by ID', () {
+    test('updateActivity should modify Firestore document', () async {
       final container = createContainer();
-      final notifier = container.read(activityProvider.notifier);
+      
+      // Ensure auth is ready
+      await container.read(authStateProvider.future);
       
       final activity = ActivityModel(
-        id: 'update-1',
-        title: 'Original',
-        date: DateTime(2026, 4, 13),
-        startTime: const TimeOfDay(hour: 9, minute: 0),
-        endTime: const TimeOfDay(hour: 10, minute: 0),
+        id: 'act_1',
+        title: 'Lift',
+        date: DateTime(2026, 4, 30),
+        startTime: const TimeOfDay(hour: 8, minute: 0),
+        endTime: const TimeOfDay(hour: 9, minute: 0),
         category: AthleteMode.athletic,
       );
 
-      notifier.addActivity(activity);
+      await container.read(activityProvider.notifier).addActivity(activity);
+      
+      final updated = activity.copyWith(title: 'Heavy Lift');
+      await container.read(activityProvider.notifier).updateActivity(updated);
 
-      final updated = activity.copyWith(title: 'Updated');
-      notifier.updateActivity(updated);
-
-      final state = container.read(activityProvider);
-      expect(state.length, 1);
-      expect(state.first.title, 'Updated');
-      expect(state.first.id, 'update-1');
+      final doc = await fakeFirestore
+          .collection('users')
+          .doc(testUser.uid)
+          .collection('activities')
+          .doc('act_1')
+          .get();
+      
+      expect(doc.data()?['title'], 'Heavy Lift');
     });
 
-    test('deleteActivity should remove an activity by ID', () {
+    test('deleteActivity should remove Firestore document', () async {
       final container = createContainer();
-      final notifier = container.read(activityProvider.notifier);
+      
+      // Ensure auth is ready
+      await container.read(authStateProvider.future);
       
       final activity = ActivityModel(
-        id: 'delete-1',
-        title: 'To Delete',
-        date: DateTime(2026, 4, 13),
-        startTime: const TimeOfDay(hour: 9, minute: 0),
-        endTime: const TimeOfDay(hour: 10, minute: 0),
+        id: 'act_1',
+        title: 'Lift',
+        date: DateTime(2026, 4, 30),
+        startTime: const TimeOfDay(hour: 8, minute: 0),
+        endTime: const TimeOfDay(hour: 9, minute: 0),
         category: AthleteMode.athletic,
       );
 
-      notifier.addActivity(activity);
-      expect(container.read(activityProvider).length, 1);
+      await container.read(activityProvider.notifier).addActivity(activity);
+      await container.read(activityProvider.notifier).deleteActivity('act_1');
 
-      notifier.deleteActivity('delete-1');
-      expect(container.read(activityProvider), isEmpty);
+      final doc = await fakeFirestore
+          .collection('users')
+          .doc(testUser.uid)
+          .collection('activities')
+          .doc('act_1')
+          .get();
+      
+      expect(doc.exists, isFalse);
     });
   });
 }

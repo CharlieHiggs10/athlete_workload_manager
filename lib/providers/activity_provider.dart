@@ -1,44 +1,61 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/activity_model.dart';
+import '../providers/auth_provider.dart';
+import '../providers/firestore_provider.dart';
 
 /// Logic Summary:
-/// Manages the local collection of logged activities for the athlete.
-/// This provider serves as the app's short-term memory before persisting to Firestore.
-/// It provides an immutable list of [ActivityModel] and methods to update that list.
+/// Reactive stream of activities fetched from Firestore for the currently authenticated user.
+/// It automatically updates whenever the data in Firestore changes.
+final activitiesStreamProvider = StreamProvider<List<ActivityModel>>((ref) {
+  final user = ref.watch(authStateProvider).valueOrNull;
+  if (user == null) return Stream.value([]);
+  
+  return ref.watch(firestoreServiceProvider).activitiesStream(user.uid);
+});
+
+/// Logic Summary:
+/// Manages the collection of logged activities by syncing with Firestore.
+/// It acts as a bridge between the Firestore stream and the UI, ensuring
+/// the UI receives a simple List<ActivityModel> while masking AsyncValue complexity.
 class ActivityNotifier extends Notifier<List<ActivityModel>> {
   @override
   List<ActivityModel> build() {
-    // Initialize with an empty list.
-    return [];
+    // Watch the stream provider and return the latest data or an empty list.
+    // This maintains compatibility with UI components expecting a List.
+    return ref.watch(activitiesStreamProvider).valueOrNull ?? [];
   }
 
   /// Logic Summary:
-  /// Adds a new activity to the state by creating a new list with the appended activity.
-  /// This ensures immutability, which triggers Riverpod listeners to update the UI.
-  void addActivity(ActivityModel activity) {
-    state = [...state, activity];
+  /// Adds a new activity to Firestore. The UI will update automatically 
+  /// when the Firestore stream emits the new collection.
+  Future<void> addActivity(ActivityModel activity) async {
+    final user = ref.read(authStateProvider).valueOrNull;
+    if (user != null) {
+      await ref.read(firestoreServiceProvider).addActivity(user.uid, activity);
+    }
   }
 
   /// Logic Summary:
-  /// Updates an existing activity by mapping over the current list and replacing 
-  /// the model with a matching ID, ensuring a new list is assigned to state.
-  void updateActivity(ActivityModel updatedActivity) {
-    state = [
-      for (final activity in state)
-        if (activity.id == updatedActivity.id) updatedActivity else activity
-    ];
+  /// Updates an existing activity in Firestore.
+  Future<void> updateActivity(ActivityModel activity) async {
+    final user = ref.read(authStateProvider).valueOrNull;
+    if (user != null) {
+      await ref.read(firestoreServiceProvider).updateActivity(user.uid, activity);
+    }
   }
 
   /// Logic Summary:
-  /// Deletes an activity by filtering out the ID, ensuring a brand new list is assigned 
-  /// to state to maintain Riverpod immutability.
-  void deleteActivity(String id) {
-    state = state.where((activity) => activity.id != id).toList();
+  /// Deletes an activity from Firestore based on its unique ID.
+  Future<void> deleteActivity(String id) async {
+    final user = ref.read(authStateProvider).valueOrNull;
+    if (user != null) {
+      await ref.read(firestoreServiceProvider).deleteActivity(user.uid, id);
+    }
   }
 }
 
 /// Logic Summary:
-/// Global provider for accessing the list of logged activities.
+/// Global provider for accessing and modifying the list of logged activities.
 final activityProvider = NotifierProvider<ActivityNotifier, List<ActivityModel>>(
   ActivityNotifier.new,
 );

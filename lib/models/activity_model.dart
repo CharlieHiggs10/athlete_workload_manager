@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'athlete_mode.dart';
 
 /// Logic Summary:
@@ -21,6 +22,35 @@ class ActivityModel {
     required this.endTime,
     required this.category,
   });
+
+  /// Logic Summary:
+  /// Converts the ActivityModel into a Map for Firestore storage.
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'title': title,
+      'date': Timestamp.fromDate(date),
+      'startTime': {'hour': startTime.hour, 'minute': startTime.minute},
+      'endTime': {'hour': endTime.hour, 'minute': endTime.minute},
+      'category': category.name,
+    };
+  }
+
+  /// Logic Summary:
+  /// Creates an ActivityModel from a Firestore Map.
+  factory ActivityModel.fromMap(Map<String, dynamic> map) {
+    final startMap = map['startTime'] as Map<String, dynamic>;
+    final endMap = map['endTime'] as Map<String, dynamic>;
+    
+    return ActivityModel(
+      id: map['id'] as String,
+      title: map['title'] as String,
+      date: (map['date'] as Timestamp).toDate(),
+      startTime: TimeOfDay(hour: startMap['hour'] as int, minute: startMap['minute'] as int),
+      endTime: TimeOfDay(hour: endMap['hour'] as int, minute: endMap['minute'] as int),
+      category: AthleteMode.values.byName(map['category'] as String),
+    );
+  }
 
   /// Logic Summary:
   /// Creates a copy of this ActivityModel with the given fields replaced by the new values.
