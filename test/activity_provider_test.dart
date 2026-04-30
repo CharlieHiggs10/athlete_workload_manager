@@ -40,6 +40,21 @@ void main() {
       expect(state, isEmpty);
     });
 
+    test('should return empty list when user is null', () async {
+      final container = ProviderContainer(
+        overrides: [
+          // Simulate unauthenticated state
+          authStateProvider.overrideWith((ref) => Stream.value(null)),
+          firestoreInstanceProvider.overrideWith((ref) => fakeFirestore),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      final activities = await container.read(activitiesStreamProvider.future);
+      expect(activities, isEmpty);
+      expect(container.read(activityProvider), isEmpty);
+    });
+
     test('should reflect activities added to Firestore', () async {
       final container = createContainer();
       

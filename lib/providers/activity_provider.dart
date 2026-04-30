@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/activity_model.dart';
-import '../providers/auth_provider.dart';
-import '../providers/firestore_provider.dart';
+import 'auth_provider.dart';
+import 'firestore_provider.dart';
 
 /// Logic Summary:
 /// Reactive stream of activities fetched from Firestore for the currently authenticated user.
