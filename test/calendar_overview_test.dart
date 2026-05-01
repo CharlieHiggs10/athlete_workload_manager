@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:athlete_workload/main.dart';
 import 'package:athlete_workload/models/athlete_mode.dart';
 import 'package:athlete_workload/providers/activity_provider.dart';
+import 'package:athlete_workload/providers/auth_provider.dart';
+import 'package:athlete_workload/providers/firestore_provider.dart';
 import 'package:athlete_workload/models/activity_model.dart';
+import 'package:athlete_workload/models/user_profile.dart';
 import 'package:athlete_workload/widgets/activity_card.dart';
 
 // Logic Summary:
@@ -13,24 +17,35 @@ import 'package:athlete_workload/widgets/activity_card.dart';
 // specifically testing the filtering (Overview vs. Modes), chronological sorting, 
 // and the fallback empty state.
 void main() {
+  const testUser = UserProfile(uid: 'test_user', email: 'test@example.com');
+
   group('Calendar Overview and Filtering Tests', () {
+    late FakeFirebaseFirestore fakeFirestore;
+
+    setUp(() {
+      fakeFirestore = FakeFirebaseFirestore();
+    });
+
     testWidgets('Overview tab shows all activities for today', (WidgetTester tester) async {
       final now = DateTime.now();
       
-      // Arrange: Boot up the app wrapped in a ProviderScope so Riverpod is active.
       await tester.pumpWidget(
         ProviderScope(
+          overrides: [
+            authStateProvider.overrideWith((ref) => Stream.value(testUser)),
+            firestoreInstanceProvider.overrideWith((ref) => fakeFirestore),
+          ],
           child: const MyApp(),
         ),
       );
 
-      // Logic block: Bypassing the UI to seed data
-      // Instead of forcing the test to tap the FAB (Floating Action Button) and fill out the bottom sheet, 
-      // grab direct access to the Riverpod container running inside the test.
-      // Then inject two models (one Athletic, one Academic) 
-      // directly into the vault to set up the test conditions.
+      // Wait for auth to resolve and CalendarScreen to load
+      await tester.pumpAndSettle();
+
       final container = ProviderScope.containerOf(tester.element(find.byType(MyApp)));
-      container.read(activityProvider.notifier).addActivity(
+      
+      // Inject two models directly into the vault to set up the test conditions.
+      await container.read(activityProvider.notifier).addActivity(
         ActivityModel(
           id: '1',
           title: 'Morning Lift',
@@ -40,7 +55,7 @@ void main() {
           category: AthleteMode.athletic,
         ),
       );
-      container.read(activityProvider.notifier).addActivity(
+      await container.read(activityProvider.notifier).addActivity(
         ActivityModel(
           id: '2',
           title: 'Math Class',
@@ -51,7 +66,10 @@ void main() {
         ),
       );
 
-      // Act: Tap the Overview tab and wait for any animations to finish.
+      // Allow the UI to update after adding activities
+      await tester.pumpAndSettle();
+
+      // Act: Tap the Overview tab.
       await tester.tap(find.byTooltip('OVERVIEW'));
       await tester.pumpAndSettle();
 
@@ -67,13 +85,18 @@ void main() {
       
       await tester.pumpWidget(
         ProviderScope(
+          overrides: [
+            authStateProvider.overrideWith((ref) => Stream.value(testUser)),
+            firestoreInstanceProvider.overrideWith((ref) => fakeFirestore),
+          ],
           child: const MyApp(),
         ),
       );
 
-      // Arrange: Inject mixed data (Athletic and Academic) into the vault.
+      await tester.pumpAndSettle();
+
       final container = ProviderScope.containerOf(tester.element(find.byType(MyApp)));
-      container.read(activityProvider.notifier).addActivity(
+      await container.read(activityProvider.notifier).addActivity(
         ActivityModel(
           id: '1',
           title: 'Morning Lift',
@@ -83,7 +106,7 @@ void main() {
           category: AthleteMode.athletic,
         ),
       );
-      container.read(activityProvider.notifier).addActivity(
+      await container.read(activityProvider.notifier).addActivity(
         ActivityModel(
           id: '2',
           title: 'Math Class',
@@ -94,7 +117,8 @@ void main() {
         ),
       );
 
-      // Act: Navigate specifically to the Athletic tab.
+      await tester.pumpAndSettle();
+
       await tester.tap(find.byTooltip('ATHLETIC'));
       await tester.pumpAndSettle();
 
@@ -109,13 +133,18 @@ void main() {
       
       await tester.pumpWidget(
         ProviderScope(
+          overrides: [
+            authStateProvider.overrideWith((ref) => Stream.value(testUser)),
+            firestoreInstanceProvider.overrideWith((ref) => fakeFirestore),
+          ],
           child: const MyApp(),
         ),
       );
 
-      // Arrange: Intentionally inject a 2:00 PM activity BEFORE an 8:00 AM activity.
+      await tester.pumpAndSettle();
+
       final container = ProviderScope.containerOf(tester.element(find.byType(MyApp)));
-      container.read(activityProvider.notifier).addActivity(
+      await container.read(activityProvider.notifier).addActivity(
         ActivityModel(
           id: '1',
           title: 'Late Activity',
@@ -125,7 +154,7 @@ void main() {
           category: AthleteMode.athletic,
         ),
       );
-      container.read(activityProvider.notifier).addActivity(
+      await container.read(activityProvider.notifier).addActivity(
         ActivityModel(
           id: '2',
           title: 'Early Activity',
@@ -136,31 +165,32 @@ void main() {
         ),
       );
 
-      // Act: Open the overview tab to render the list.
+      await tester.pumpAndSettle();
+
       await tester.tap(find.byTooltip('OVERVIEW'));
       await tester.pumpAndSettle();
 
-      /// `tester.widgetList` extracts the actual widgets currently rendered on the screen.
-      /// By converting it to a List, we can check index [0] to prove the UI sorted 
-      /// the 8:00 AM activity to the top, regardless of injection order.
       final cardList = tester.widgetList<ActivityCard>(find.byType(ActivityCard)).toList();
       expect(cardList[0].activity.title, 'Early Activity');
       expect(cardList[1].activity.title, 'Late Activity');
     });
 
     testWidgets('Shows empty state message when no activities exist', (WidgetTester tester) async {
-      // Arrange: Boot the app with a completely empty Riverpod vault.
       await tester.pumpWidget(
         ProviderScope(
+          overrides: [
+            authStateProvider.overrideWith((ref) => Stream.value(testUser)),
+            firestoreInstanceProvider.overrideWith((ref) => fakeFirestore),
+          ],
           child: const MyApp(),
         ),
       );
 
-      // Act: Navigate to the Overview tab.
+      await tester.pumpAndSettle();
+
       await tester.tap(find.byTooltip('OVERVIEW'));
       await tester.pumpAndSettle();
 
-      // Assert: Verify the placeholder text and icon render instead of an empty screen.
       expect(find.text('No  activities for today.'), findsOneWidget);
       expect(find.byIcon(Icons.view_agenda), findsOneWidget);
     });
@@ -171,14 +201,19 @@ void main() {
       
       await tester.pumpWidget(
         ProviderScope(
+          overrides: [
+            authStateProvider.overrideWith((ref) => Stream.value(testUser)),
+            firestoreInstanceProvider.overrideWith((ref) => fakeFirestore),
+          ],
           child: const MyApp(),
         ),
       );
 
+      await tester.pumpAndSettle();
+
       final container = ProviderScope.containerOf(tester.element(find.byType(MyApp)));
       
-      // Today's activity
-      container.read(activityProvider.notifier).addActivity(
+      await container.read(activityProvider.notifier).addActivity(
         ActivityModel(
           id: 'today_1',
           title: 'Today Activity',
@@ -189,8 +224,7 @@ void main() {
         ),
       );
 
-      // Tomorrow's activity
-      container.read(activityProvider.notifier).addActivity(
+      await container.read(activityProvider.notifier).addActivity(
         ActivityModel(
           id: 'tomorrow_1',
           title: 'Future Activity',
@@ -201,11 +235,11 @@ void main() {
         ),
       );
 
-      // Act: Go to Overview tab
+      await tester.pumpAndSettle();
+
       await tester.tap(find.byTooltip('OVERVIEW'));
       await tester.pumpAndSettle();
 
-      // Assert: Should only see Today Activity
       expect(find.text('Today Activity'), findsOneWidget);
       expect(find.text('Future Activity'), findsNothing);
       expect(find.byType(ActivityCard), findsNWidgets(1));

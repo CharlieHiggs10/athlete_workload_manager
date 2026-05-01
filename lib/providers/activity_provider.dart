@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/activity_model.dart';
 import 'auth_provider.dart';
@@ -16,13 +17,12 @@ final activitiesStreamProvider = StreamProvider<List<ActivityModel>>((ref) {
 /// Logic Summary:
 /// Manages the collection of logged activities by syncing with Firestore.
 /// It acts as a bridge between the Firestore stream and the UI, ensuring
-/// the UI receives a simple List<ActivityModel> while masking AsyncValue complexity.
-class ActivityNotifier extends Notifier<List<ActivityModel>> {
+/// the UI receives an AsyncValue<List<ActivityModel>> to handle loading and error states.
+class ActivityNotifier extends AsyncNotifier<List<ActivityModel>> {
   @override
-  List<ActivityModel> build() {
-    // Watch the stream provider and return the latest data or an empty list.
-    // This maintains compatibility with UI components expecting a List.
-    return ref.watch(activitiesStreamProvider).valueOrNull ?? [];
+  FutureOr<List<ActivityModel>> build() {
+    // Watch the stream provider and return the latest future.
+    return ref.watch(activitiesStreamProvider.future);
   }
 
   /// Logic Summary:
@@ -56,6 +56,6 @@ class ActivityNotifier extends Notifier<List<ActivityModel>> {
 
 /// Logic Summary:
 /// Global provider for accessing and modifying the list of logged activities.
-final activityProvider = NotifierProvider<ActivityNotifier, List<ActivityModel>>(
+final activityProvider = AsyncNotifierProvider<ActivityNotifier, List<ActivityModel>>(
   ActivityNotifier.new,
 );

@@ -1,14 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:athlete_workload/main.dart';
 import 'package:athlete_workload/models/athlete_mode.dart';
 import 'package:athlete_workload/providers/activity_provider.dart';
+import 'package:athlete_workload/providers/auth_provider.dart';
+import 'package:athlete_workload/providers/firestore_provider.dart';
 import 'package:athlete_workload/models/activity_model.dart';
+import 'package:athlete_workload/models/user_profile.dart';
 import 'package:athlete_workload/widgets/activity_card.dart';
 
 void main() {
+  const testUser = UserProfile(uid: 'test_user', email: 'test@example.com');
+
   group('Future Grouping and Mode Filtering Tests', () {
+    late FakeFirebaseFirestore fakeFirestore;
+
+    setUp(() {
+      fakeFirestore = FakeFirebaseFirestore();
+    });
+
     testWidgets('Mode tabs show today and future activities with headers', (WidgetTester tester) async {
       final now = DateTime.now();
       final today = DateTime(now.year, now.month, now.day);
@@ -17,14 +29,20 @@ void main() {
       
       await tester.pumpWidget(
         ProviderScope(
+          overrides: [
+            authStateProvider.overrideWith((ref) => Stream.value(testUser)),
+            firestoreInstanceProvider.overrideWith((ref) => fakeFirestore),
+          ],
           child: const MyApp(),
         ),
       );
 
+      await tester.pumpAndSettle();
+
       final container = ProviderScope.containerOf(tester.element(find.byType(MyApp)));
       
       // Today
-      container.read(activityProvider.notifier).addActivity(
+      await container.read(activityProvider.notifier).addActivity(
         ActivityModel(
           id: '1',
           title: 'Today Lift',
@@ -36,7 +54,7 @@ void main() {
       );
 
       // Tomorrow
-      container.read(activityProvider.notifier).addActivity(
+      await container.read(activityProvider.notifier).addActivity(
         ActivityModel(
           id: '2',
           title: 'Tomorrow Practice',
@@ -48,7 +66,7 @@ void main() {
       );
 
       // Future
-      container.read(activityProvider.notifier).addActivity(
+      await container.read(activityProvider.notifier).addActivity(
         ActivityModel(
           id: '3',
           title: 'Future Game',
@@ -58,6 +76,8 @@ void main() {
           category: AthleteMode.athletic,
         ),
       );
+
+      await tester.pumpAndSettle();
 
       // Act: Navigate to Athletic tab
       await tester.tap(find.byTooltip('ATHLETIC'));
@@ -86,14 +106,20 @@ void main() {
       
       await tester.pumpWidget(
         ProviderScope(
+          overrides: [
+            authStateProvider.overrideWith((ref) => Stream.value(testUser)),
+            firestoreInstanceProvider.overrideWith((ref) => fakeFirestore),
+          ],
           child: const MyApp(),
         ),
       );
 
+      await tester.pumpAndSettle();
+
       final container = ProviderScope.containerOf(tester.element(find.byType(MyApp)));
       
       // Inject out of order: Tomorrow early, then Today late, then Today early
-      container.read(activityProvider.notifier).addActivity(
+      await container.read(activityProvider.notifier).addActivity(
         ActivityModel(
           id: '1',
           title: 'Tomorrow Early',
@@ -103,7 +129,7 @@ void main() {
           category: AthleteMode.athletic,
         ),
       );
-      container.read(activityProvider.notifier).addActivity(
+      await container.read(activityProvider.notifier).addActivity(
         ActivityModel(
           id: '2',
           title: 'Today Late',
@@ -113,7 +139,7 @@ void main() {
           category: AthleteMode.athletic,
         ),
       );
-      container.read(activityProvider.notifier).addActivity(
+      await container.read(activityProvider.notifier).addActivity(
         ActivityModel(
           id: '3',
           title: 'Today Early',
@@ -123,6 +149,8 @@ void main() {
           category: AthleteMode.athletic,
         ),
       );
+
+      await tester.pumpAndSettle();
 
       await tester.tap(find.byTooltip('ATHLETIC'));
       await tester.pumpAndSettle();
@@ -136,16 +164,23 @@ void main() {
     testWidgets('Mode tab empty state message is "scheduled"', (WidgetTester tester) async {
       await tester.pumpWidget(
         ProviderScope(
+          overrides: [
+            authStateProvider.overrideWith((ref) => Stream.value(testUser)),
+            firestoreInstanceProvider.overrideWith((ref) => fakeFirestore),
+          ],
           child: const MyApp(),
         ),
       );
+
+      await tester.pumpAndSettle();
 
       await tester.tap(find.byTooltip('ATHLETIC'));
       await tester.pumpAndSettle();
 
       expect(find.text('No Athletic activities scheduled.'), findsOneWidget);
     });
-   group('Overview Specific Filter Rule', () {
+
+    group('Overview Specific Filter Rule', () {
       testWidgets('Overview tab still strictly shows only today', (WidgetTester tester) async {
         final now = DateTime.now();
         final today = DateTime(now.year, now.month, now.day);
@@ -153,13 +188,19 @@ void main() {
         
         await tester.pumpWidget(
           ProviderScope(
+            overrides: [
+              authStateProvider.overrideWith((ref) => Stream.value(testUser)),
+              firestoreInstanceProvider.overrideWith((ref) => fakeFirestore),
+            ],
             child: const MyApp(),
           ),
         );
 
+        await tester.pumpAndSettle();
+
         final container = ProviderScope.containerOf(tester.element(find.byType(MyApp)));
         
-        container.read(activityProvider.notifier).addActivity(
+        await container.read(activityProvider.notifier).addActivity(
           ActivityModel(
             id: '1',
             title: 'Today Item',
@@ -169,7 +210,7 @@ void main() {
             category: AthleteMode.athletic,
           ),
         );
-        container.read(activityProvider.notifier).addActivity(
+        await container.read(activityProvider.notifier).addActivity(
           ActivityModel(
             id: '2',
             title: 'Future Item',
@@ -179,6 +220,8 @@ void main() {
             category: AthleteMode.athletic,
           ),
         );
+
+        await tester.pumpAndSettle();
 
         await tester.tap(find.byTooltip('OVERVIEW'));
         await tester.pumpAndSettle();

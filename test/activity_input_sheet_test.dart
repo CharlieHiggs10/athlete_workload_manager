@@ -12,7 +12,12 @@ void main() {
   /// its selection chips, inherits the correct theme colors, and 
   /// handles date/time interactions as expected.
   group('ActivityInputSheet Widget Tests', () {
-    
+    // Use a date in the future relative to the session date (April 30, 2026)
+    final futureDate = DateTime(2026, 12, 1);
+    final futureDateString = '12/1/2026';
+    final otherFutureDate = DateTime(2026, 12, 25);
+    final otherFutureDateString = '12/25/2026';
+
     testWidgets('Displays Athletic chips and Red theme when in Athletic mode', (tester) async {
       await tester.pumpWidget(
         ProviderScope(
@@ -22,7 +27,7 @@ void main() {
           child: MaterialApp(
             theme: AppTheme.getThemeForColor(AppTheme.athleticRed),
             home: Scaffold(
-              body: ActivityInputSheet(initialDate: DateTime(2026, 4, 1)),
+              body: ActivityInputSheet(initialDate: futureDate),
             ),
           ),
         ),
@@ -52,7 +57,7 @@ void main() {
           child: MaterialApp(
             theme: AppTheme.getThemeForColor(AppTheme.academicBlue),
             home: Scaffold(
-              body: ActivityInputSheet(initialDate: DateTime(2026, 4, 1)),
+              body: ActivityInputSheet(initialDate: futureDate),
             ),
           ),
         ),
@@ -82,7 +87,7 @@ void main() {
           child: MaterialApp(
             theme: AppTheme.getThemeForColor(AppTheme.recoveryGreen),
             home: Scaffold(
-              body: ActivityInputSheet(initialDate: DateTime(2026, 4, 1)),
+              body: ActivityInputSheet(initialDate: futureDate),
             ),
           ),
         ),
@@ -109,7 +114,7 @@ void main() {
           child: MaterialApp(
             theme: AppTheme.getThemeForColor(AppTheme.athleticRed),
             home: Scaffold(
-              body: ActivityInputSheet(initialDate: DateTime(2026, 4, 1)),
+              body: ActivityInputSheet(initialDate: futureDate),
             ),
           ),
         ),
@@ -133,16 +138,16 @@ void main() {
           child: MaterialApp(
             theme: AppTheme.getThemeForColor(AppTheme.athleticRed),
             home: Scaffold(
-              body: ActivityInputSheet(initialDate: DateTime(2026, 4, 1)),
+              body: ActivityInputSheet(initialDate: futureDate),
             ),
           ),
         ),
       );
 
-      expect(find.text('4/1/2026'), findsOneWidget);
+      expect(find.text(futureDateString), findsOneWidget);
 
       // Tap the date to open picker
-      await tester.tap(find.text('4/1/2026'));
+      await tester.tap(find.text(futureDateString));
       await tester.pumpAndSettle();
 
       // Select a different date (e.g., 25th)
@@ -150,7 +155,7 @@ void main() {
       await tester.tap(find.text('OK'));
       await tester.pumpAndSettle();
 
-      expect(find.text('4/25/2026'), findsOneWidget);
+      expect(find.text(otherFutureDateString), findsOneWidget);
     });
 
     testWidgets('Validation fails when no activity is selected and shows themed SnackBar', (tester) async {
@@ -159,7 +164,7 @@ void main() {
           child: MaterialApp(
             theme: AppTheme.getThemeForColor(AppTheme.athleticRed),
             home: Scaffold(
-              body: ActivityInputSheet(initialDate: DateTime(2026, 4, 1)),
+              body: ActivityInputSheet(initialDate: futureDate),
             ),
           ),
         ),
@@ -178,7 +183,6 @@ void main() {
 
     testWidgets('Returns payload with updated date and times', (tester) async {
       Map<String, dynamic>? result;
-      final initialDate = DateTime(2026, 4, 1);
 
       await tester.pumpWidget(
         ProviderScope(
@@ -192,7 +196,7 @@ void main() {
                       result = await showModalBottomSheet<Map<String, dynamic>>(
                         context: context,
                         isScrollControlled: true,
-                        builder: (_) => ActivityInputSheet(initialDate: initialDate),
+                        builder: (_) => ActivityInputSheet(initialDate: futureDate),
                       );
                     },
                     child: const Text('Open'),
@@ -212,7 +216,7 @@ void main() {
       await tester.pump();
 
       // Change Date
-      await tester.tap(find.text('4/1/2026'));
+      await tester.tap(find.text(futureDateString));
       await tester.pumpAndSettle();
       await tester.tap(find.text('25'));
       await tester.tap(find.text('OK'));
@@ -236,7 +240,7 @@ void main() {
 
       expect(result, isNotNull);
       expect(result!['activity'], equals('Lift'));
-      expect(result!['date'], equals(DateTime(2026, 4, 25)));
+      expect(result!['date'], equals(otherFutureDate));
       expect(result!['startTime'], isA<TimeOfDay>());
       expect(result!['endTime'], isA<TimeOfDay>());
     });

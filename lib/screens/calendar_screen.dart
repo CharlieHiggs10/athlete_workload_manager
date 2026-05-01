@@ -20,32 +20,8 @@ class CalendarScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentMode = ref.watch(athleteModeProvider);
-    final activities = ref.watch(activityProvider);
+    final activitiesAsync = ref.watch(activityProvider);
     final themeData = _getThemeForMode(currentMode);
-    final now = DateTime.now();
-
-    // Filter activities based on the active tab and date requirements.
-    // Overview: Strictly today only.
-    // Mode-specific: Today and all future activities.
-    final today = DateTime(now.year, now.month, now.day);
-    final filteredActivities = activities.where((activity) {
-      final isSameDay = DateUtils.isSameDay(activity.date, today);
-      final isFuture = activity.date.isAfter(today);
-
-      if (currentMode == AthleteMode.overview) {
-        return isSameDay;
-      }
-      return activity.category == currentMode && (isSameDay || isFuture);
-    }).toList();
-
-    // Sort chronologically by date and then start time.
-    filteredActivities.sort((a, b) {
-      final dateComparison = a.date.compareTo(b.date);
-      if (dateComparison != 0) return dateComparison;
-      final aMinutes = a.startTime.hour * 60 + a.startTime.minute;
-      final bMinutes = b.startTime.hour * 60 + b.startTime.minute;
-      return aMinutes.compareTo(bMinutes);
-    });
 
     return Theme(
       data: themeData,
@@ -84,9 +60,41 @@ class CalendarScreen extends ConsumerWidget {
             ),
           ],
         ),
-        body: ActivityListView(
-          activities: filteredActivities,
-          currentMode: currentMode,
+        body: activitiesAsync.when(
+          data: (activities) {
+            final now = DateTime.now();
+            final today = DateTime(now.year, now.month, now.day);
+            
+            final filteredActivities = activities.where((activity) {
+              final isSameDay = DateUtils.isSameDay(activity.date, today);
+              final isFuture = activity.date.isAfter(today);
+
+              if (currentMode == AthleteMode.overview) {
+                return isSameDay;
+              }
+              return activity.category == currentMode && (isSameDay || isFuture);
+            }).toList();
+
+            filteredActivities.sort((a, b) {
+              final dateComparison = a.date.compareTo(b.date);
+              if (dateComparison != 0) return dateComparison;
+              final aMinutes = a.startTime.hour * 60 + a.startTime.minute;
+              final bMinutes = b.startTime.hour * 60 + b.startTime.minute;
+              return aMinutes.compareTo(bMinutes);
+            });
+
+            return ActivityListView(
+              activities: filteredActivities,
+              currentMode: currentMode,
+            );
+          },
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (err, stack) => Center(
+            child: Text(
+              'Failed to load activities. Please try again.',
+              style: TextStyle(color: themeData.colorScheme.error),
+            ),
+          ),
         ),
         floatingActionButton: currentMode == AthleteMode.overview
             ? null

@@ -79,7 +79,8 @@ void main() {
     await tester.pumpAndSettle();
 
     // Verify activity is gone from provider
-    expect(container.read(activityProvider), isEmpty);
+    // Minimal fix for compilation: check value
+    expect(container.read(activityProvider).valueOrNull ?? [], isEmpty);
   });
 
   testWidgets('ActivityCard edit action opens ActivityInputSheet', (WidgetTester tester) async {

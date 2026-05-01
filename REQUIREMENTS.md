@@ -141,10 +141,10 @@ Purpose: To persist the calendar data across sessions so the athlete's schedule 
     [x] Step 3.2.2: The Silent Sync
     Purpose: Update the AuthService to automatically generate and save a basic UserProfile (uid, displayName, email) to Firestore the first time an athlete logs in, skipping any manual onboarding forms.
 
-    [ ] Step 3.2.3: Cloud-Syncing the Vault (ActivityProvider)
+    [x] Step 3.2.3: Cloud-Syncing the Vault (ActivityProvider)
     Purpose: Refactor the `ActivityProvider` so that instead of managing a local list, it reads from and writes to the new `FirestoreService`, ensuring all UI changes are immediately synced to the cloud.
 
-    [ ] Step 3.2.4: The Loading & Error States
+    [x] Step 3.2.4: The Loading & Error States
     Purpose: Update the `CalendarScreen` to gracefully handle network delays by using Riverpod's `AsyncValue` to show loading spinners and error messages while fetching Firestore data.
 
 [ ] Step 3.3: Wellness & Recovery Check-ins

@@ -37,28 +37,25 @@ void main() {
     test('Initial state should be empty while stream is loading', () {
       final container = createContainer();
       final state = container.read(activityProvider);
-      expect(state, isEmpty);
+      expect(state, isA<AsyncLoading>());
     });
 
     test('should return empty list when user is null', () async {
       final container = ProviderContainer(
         overrides: [
-          // Simulate unauthenticated state
           authStateProvider.overrideWith((ref) => Stream.value(null)),
           firestoreInstanceProvider.overrideWith((ref) => fakeFirestore),
         ],
       );
       addTearDown(container.dispose);
 
-      final activities = await container.read(activitiesStreamProvider.future);
+      final activities = await container.read(activityProvider.future);
       expect(activities, isEmpty);
-      expect(container.read(activityProvider), isEmpty);
     });
 
     test('should reflect activities added to Firestore', () async {
       final container = createContainer();
       
-      // Ensure auth is ready
       await container.read(authStateProvider.future);
       
       final activity = ActivityModel(
@@ -70,7 +67,6 @@ void main() {
         category: AthleteMode.athletic,
       );
 
-      // Add activity directly to Firestore
       await fakeFirestore
           .collection('users')
           .doc(testUser.uid)
@@ -78,18 +74,16 @@ void main() {
           .doc(activity.id)
           .set(activity.toMap());
 
-      // Wait for the stream provider to emit
-      final activities = await container.read(activitiesStreamProvider.future);
+      final activities = await container.read(activityProvider.future);
       
       expect(activities.length, 1);
       expect(activities.first.title, 'Lift');
-      expect(container.read(activityProvider), activities);
     });
 
     test('addActivity should write to Firestore', () async {
       final container = createContainer();
       
-      // Ensure auth is ready
+      // Ensure auth is initialized
       await container.read(authStateProvider.future);
       
       final activity = ActivityModel(
@@ -117,7 +111,7 @@ void main() {
     test('updateActivity should modify Firestore document', () async {
       final container = createContainer();
       
-      // Ensure auth is ready
+      // Ensure auth is initialized
       await container.read(authStateProvider.future);
       
       final activity = ActivityModel(
@@ -147,7 +141,7 @@ void main() {
     test('deleteActivity should remove Firestore document', () async {
       final container = createContainer();
       
-      // Ensure auth is ready
+      // Ensure auth is initialized
       await container.read(authStateProvider.future);
       
       final activity = ActivityModel(
