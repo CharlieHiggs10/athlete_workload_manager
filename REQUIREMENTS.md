@@ -154,7 +154,7 @@ Purpose: To persist the calendar data across sessions so the athlete's schedule 
         Purpose: Modify the `Activity` class to support mathematical weights.
         Add an `int weight` property to the `Activity` model. Ensure it is required or defaults to 0, and update the `toMap()` and `fromMap()` serialization methods so it can safely read/write to Firestore.
 
-    [ ] Step 3.3.2: Create the Weight Mapping Dictionary
+    [x] Step 3.3.2: Create the Weight Mapping Dictionary
         Purpose: Define the point values for every possible activity.
         Create a private utility function or mapping dictionary (e.g., inside the `ActivityProvider`) that links string activity names to integer weights (Game: 4, Practice: 3, Study: 3, Class: 3, Lift: 2, Travel: 2, Lab: 2, Film: 1, Office Hours: 1, Stretching: -1, Injury Rehab: -2, Hydration: -2, Ice Bath: -2, Nap: -3).
 

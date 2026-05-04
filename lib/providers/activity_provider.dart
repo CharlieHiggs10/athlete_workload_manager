@@ -31,7 +31,10 @@ class ActivityNotifier extends AsyncNotifier<List<ActivityModel>> {
   Future<void> addActivity(ActivityModel activity) async {
     final user = ref.read(authStateProvider).valueOrNull;
     if (user != null) {
-      await ref.read(firestoreServiceProvider).addActivity(user.uid, activity);
+      final weightedActivity = activity.copyWith(
+        weight: getActivityWeight(activity.title),
+      );
+      await ref.read(firestoreServiceProvider).addActivity(user.uid, weightedActivity);
     }
   }
 
@@ -40,7 +43,10 @@ class ActivityNotifier extends AsyncNotifier<List<ActivityModel>> {
   Future<void> updateActivity(ActivityModel activity) async {
     final user = ref.read(authStateProvider).valueOrNull;
     if (user != null) {
-      await ref.read(firestoreServiceProvider).updateActivity(user.uid, activity);
+      final weightedActivity = activity.copyWith(
+        weight: getActivityWeight(activity.title),
+      );
+      await ref.read(firestoreServiceProvider).updateActivity(user.uid, weightedActivity);
     }
   }
 

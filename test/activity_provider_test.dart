@@ -165,6 +165,59 @@ void main() {
       
       expect(doc.exists, isFalse);
     });
+
+    test('addActivity should inject correct weight before saving', () async {
+      final container = createContainer();
+      await container.read(authStateProvider.future);
+      
+      final activity = ActivityModel(
+        id: 'act_weight_test',
+        title: 'Game', // Weight should be 4
+        date: DateTime(2026, 4, 30),
+        startTime: const TimeOfDay(hour: 10, minute: 0),
+        endTime: const TimeOfDay(hour: 11, minute: 0),
+        category: AthleteMode.athletic,
+      );
+
+      await container.read(activityProvider.notifier).addActivity(activity);
+
+      final doc = await fakeFirestore
+          .collection('users')
+          .doc(testUser.uid)
+          .collection('activities')
+          .doc('act_weight_test')
+          .get();
+      
+      expect(doc.data()?['weight'], 4);
+    });
+
+    test('updateActivity should inject correct weight before saving', () async {
+      final container = createContainer();
+      await container.read(authStateProvider.future);
+      
+      final activity = ActivityModel(
+        id: 'act_update_weight_test',
+        title: 'Study', // Weight 3
+        date: DateTime(2026, 4, 30),
+        startTime: const TimeOfDay(hour: 10, minute: 0),
+        endTime: const TimeOfDay(hour: 11, minute: 0),
+        category: AthleteMode.academic,
+      );
+
+      await container.read(activityProvider.notifier).addActivity(activity);
+      
+      final updated = activity.copyWith(title: 'Nap'); // Weight -3
+      await container.read(activityProvider.notifier).updateActivity(updated);
+
+      final doc = await fakeFirestore
+          .collection('users')
+          .doc(testUser.uid)
+          .collection('activities')
+          .doc('act_update_weight_test')
+          .get();
+      
+      expect(doc.data()?['weight'], -3);
+    });
   });
 
   group('Weight Mapping Tests', () {
