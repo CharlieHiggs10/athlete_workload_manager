@@ -147,25 +147,42 @@ Purpose: To persist the calendar data across sessions so the athlete's schedule 
     [x] Step 3.2.4: The Loading & Error States
     Purpose: Update the `CalendarScreen` to gracefully handle network delays by using Riverpod's `AsyncValue` to show loading spinners and error messages while fetching Firestore data.
 
-[ ] Step 3.3: Wellness & Recovery Check-ins
+[ ] Step 3.3: The Workload Weighting Engine
+    Purpose: To automatically calculate stress and recovery without requiring subjective user forms.
+    
+    [ ] Step 3.3.1: Update the Activity Model
+        Purpose: Modify the `Activity` class to support mathematical weights.
+        Add an `int weight` property to the `Activity` model. Ensure it is required or defaults to 0, and update the `toMap()` and `fromMap()` serialization methods so it can safely read/write to Firestore.
 
-Purpose: To gather daily subjective data like sleep quality, soreness, and stress levels.
+    [ ] Step 3.3.2: Create the Weight Mapping Dictionary
+        Purpose: Define the point values for every possible activity.
+        Create a private utility function or mapping dictionary (e.g., inside the `ActivityProvider`) that links string activity names to integer weights (Game: 4, Practice: 3, Study: 3, Class: 3, Lift: 2, Travel: 2, Lab: 2, Film: 1, Office Hours: 1, Stretching: -1, Injury Rehab: -2, Hydration: -2, Ice Bath: -2, Nap: -3).
 
-Create a daily check-in form and store the results in a WellnessCheck collection.
+    [ ] Step 3.3.3: Intercept and Inject Weights on Save
+        Purpose: Automatically calculate the weight before data hits the cloud.
+        Update the `addActivity` (or `save`) method in the `ActivityProvider`. Before sending the `Activity` object to the `FirestoreService`, look up the correct weight using the dictionary from 3.3.2 and inject it into the object.
 
-[ ] Step 3.4: Predictive Burnout Analytics (Rolling 7-Day Window)
-Purpose: To calculate a cumulative performance metric and highlight "high-risk" periods based on the intersection of heavy training and exam schedules.
-Develop a logic provider that queries the `WellnessCheck` and `ActivityModel` data. Establish a rolling 7-day window (Today + previous 6 days) for workload calculations, ensuring the algorithm continuously measures cumulative load without an arbitrary weekly reset.
+[ ] Step 3.4: Predictive Burnout Analytics (Invisible Engine)
+    Purpose: To monitor the 7-day workload and alert the athlete only when they enter a high-risk burnout period.
+    
+    [ ] Step 3.4.1: The 7-Day Data Filter
+        Purpose: Isolate the relevant data for the current burnout calculation.
+        Create a function or Riverpod provider that filters the user's total activities, returning strictly those that occurred within a rolling 7-day window (Today + the previous 6 days).
 
-Phase 4: Polish & Performance
-[ ] Step 4.1: Error & Loading States
+    [ ] Step 3.4.2: The Workload Summation Provider
+        Purpose: Calculate the invisible cumulative score.
+        Create a new Riverpod provider (e.g., `workloadProvider`) that listens to the filtered 7-day activities from 3.4.1 and calculates the mathematical sum of their `weight` values. Ensure this returns an integer.
 
-Purpose: To ensure the app remains stable during network latencies by using Riverpod’s AsyncValue.
+    [ ] Step 3.4.3: The "Check Engine Light" UI
+        Purpose: Warn the athlete without showing them the raw numbers.
+        Update the `CalendarScreen` to watch the `workloadProvider`. If the integer value is strictly greater than 25, display a prominent, red-themed "Burnout Alert" card above the calendar suggesting recovery. If the value is 25 or below, hide the card entirely so the UI remains clean. Do not display the integer score anywhere.
 
-Wrap all Firebase listeners in .when(data: ..., loading: ..., error: ...).
+        
+Step 4: Polish & Performance
+Goal: Refine the user experience and ensure the code meets professional quality standards for final submission.
+
+[ ] Step 4.1: UI/UX Refinement
+    Purpose: Apply consistent styling across the Login and Calendar screens. Ensure the "Burnout Warning" is visually distinct (e.g., using orange or red theme colors) and the calendar elements are perfectly aligned.
 
 [ ] Step 4.2: Final Refactoring
-
-Purpose: To maintain code quality and ensure no file exceeds the 200-line limit before final submission.
-
-Audit all widgets and extract sub-components into the /widgets directory.
+    Purpose: To maintain code quality and ensure no file exceeds the 200-line limit before final submission. Audit all widgets, extract sub-components into the `/widgets` directory, and remove all `print()` statements and unused imports.

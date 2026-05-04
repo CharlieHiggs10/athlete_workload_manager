@@ -13,6 +13,7 @@ class ActivityModel {
   final TimeOfDay startTime;
   final TimeOfDay endTime;
   final AthleteMode category;
+  final int weight;
 
   const ActivityModel({
     required this.id,
@@ -21,6 +22,7 @@ class ActivityModel {
     required this.startTime,
     required this.endTime,
     required this.category,
+    this.weight = 0,
   });
 
   /// Logic Summary:
@@ -33,6 +35,7 @@ class ActivityModel {
       'startTime': {'hour': startTime.hour, 'minute': startTime.minute},
       'endTime': {'hour': endTime.hour, 'minute': endTime.minute},
       'category': category.name,
+      'weight': weight,
     };
   }
 
@@ -49,6 +52,7 @@ class ActivityModel {
       startTime: TimeOfDay(hour: startMap['hour'] as int, minute: startMap['minute'] as int),
       endTime: TimeOfDay(hour: endMap['hour'] as int, minute: endMap['minute'] as int),
       category: AthleteMode.values.byName(map['category'] as String),
+      weight: map['weight'] as int? ?? 0,
     );
   }
 
@@ -61,6 +65,7 @@ class ActivityModel {
     TimeOfDay? startTime,
     TimeOfDay? endTime,
     AthleteMode? category,
+    int? weight,
   }) {
     return ActivityModel(
       id: id ?? this.id,
@@ -69,6 +74,7 @@ class ActivityModel {
       startTime: startTime ?? this.startTime,
       endTime: endTime ?? this.endTime,
       category: category ?? this.category,
+      weight: weight ?? this.weight,
     );
   }
 
@@ -84,7 +90,8 @@ class ActivityModel {
           date == other.date &&
           startTime == other.startTime &&
           endTime == other.endTime &&
-          category == other.category;
+          category == other.category &&
+          weight == other.weight;
 
   @override
   int get hashCode =>
@@ -93,5 +100,6 @@ class ActivityModel {
       date.hashCode ^
       startTime.hashCode ^
       endTime.hashCode ^
-      category.hashCode;
+      category.hashCode ^
+      weight.hashCode;
 }
