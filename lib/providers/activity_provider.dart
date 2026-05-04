@@ -88,3 +88,31 @@ class ActivityNotifier extends AsyncNotifier<List<ActivityModel>> {
 final activityProvider = AsyncNotifierProvider<ActivityNotifier, List<ActivityModel>>(
   ActivityNotifier.new,
 );
+
+/// Logic Summary:
+/// Filters the total list of activities to return strictly those that occurred
+/// within a rolling 7-day window (Today + the previous 6 days).
+final recentActivitiesProvider = Provider<AsyncValue<List<ActivityModel>>>((ref) {
+  final allActivitiesAsync = ref.watch(activityProvider);
+
+  return allActivitiesAsync.whenData((activities) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final sevenDaysAgo = today.subtract(const Duration(days: 6));
+
+    return activities.where((activity) {
+      final activityDate = DateTime(
+        activity.date.year,
+        activity.date.month,
+        activity.date.day,
+      );
+      // Check if the activity is within [today - 6 days, today]
+      final isNotTooOld = activityDate.isAtSameMomentAs(sevenDaysAgo) || 
+                          activityDate.isAfter(sevenDaysAgo);
+      final isNotFuture = activityDate.isAtSameMomentAs(today) || 
+                          activityDate.isBefore(today);
+      
+      return isNotTooOld && isNotFuture;
+    }).toList();
+  });
+});

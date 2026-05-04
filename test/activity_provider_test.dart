@@ -218,6 +218,68 @@ void main() {
       
       expect(doc.data()?['weight'], -3);
     });
+
+    test('recentActivitiesProvider should filter activities to strictly the last 7 days', () async {
+      final container = createContainer();
+      await container.read(authStateProvider.future);
+
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+      
+      final activities = [
+        // Today
+        ActivityModel(
+          id: '1',
+          title: 'Practice',
+          date: today,
+          startTime: const TimeOfDay(hour: 10, minute: 0),
+          endTime: const TimeOfDay(hour: 12, minute: 0),
+          category: AthleteMode.athletic,
+        ),
+        // 6 days ago (Inclusive)
+        ActivityModel(
+          id: '2',
+          title: 'Lift',
+          date: today.subtract(const Duration(days: 6)),
+          startTime: const TimeOfDay(hour: 10, minute: 0),
+          endTime: const TimeOfDay(hour: 11, minute: 0),
+          category: AthleteMode.athletic,
+        ),
+        // 7 days ago (Exclusive)
+        ActivityModel(
+          id: '3',
+          title: 'Game',
+          date: today.subtract(const Duration(days: 7)),
+          startTime: const TimeOfDay(hour: 10, minute: 0),
+          endTime: const TimeOfDay(hour: 13, minute: 0),
+          category: AthleteMode.athletic,
+        ),
+        // Future date (Exclusive)
+        ActivityModel(
+          id: '4',
+          title: 'Study',
+          date: today.add(const Duration(days: 1)),
+          startTime: const TimeOfDay(hour: 10, minute: 0),
+          endTime: const TimeOfDay(hour: 11, minute: 0),
+          category: AthleteMode.academic,
+        ),
+      ];
+
+      for (var activity in activities) {
+        await container.read(activityProvider.notifier).addActivity(activity);
+      }
+
+      // Wait for the activityProvider to update and emit data
+      final filteredActivities = await container.read(activityProvider.future).then((_) {
+        return container.read(recentActivitiesProvider).value!;
+      });
+
+      expect(filteredActivities.length, 2);
+      expect(filteredActivities.any((a) => a.id == '1'), isTrue);
+      expect(filteredActivities.any((a) => a.id == '2'), isTrue);
+      expect(filteredActivities.any((a) => a.id == '3'), isFalse);
+      expect(filteredActivities.any((a) => a.id == '4'), isFalse);
+    });
   });
 
   group('Weight Mapping Tests', () {
