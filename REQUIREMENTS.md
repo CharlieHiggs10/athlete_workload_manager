@@ -150,7 +150,7 @@ Purpose: To persist the calendar data across sessions so the athlete's schedule 
 [ ] Step 3.3: The Workload Weighting Engine
     Purpose: To automatically calculate stress and recovery without requiring subjective user forms.
     
-    [ ] Step 3.3.1: Update the Activity Model
+    [x] Step 3.3.1: Update the Activity Model
         Purpose: Modify the `Activity` class to support mathematical weights.
         Add an `int weight` property to the `Activity` model. Ensure it is required or defaults to 0, and update the `toMap()` and `fromMap()` serialization methods so it can safely read/write to Firestore.
 
@@ -177,7 +177,7 @@ Purpose: To persist the calendar data across sessions so the athlete's schedule 
         Purpose: Warn the athlete without showing them the raw numbers.
         Update the `CalendarScreen` to watch the `workloadProvider`. If the integer value is strictly greater than 25, display a prominent, red-themed "Burnout Alert" card above the calendar suggesting recovery. If the value is 25 or below, hide the card entirely so the UI remains clean. Do not display the integer score anywhere.
 
-        
+
 Step 4: Polish & Performance
 Goal: Refine the user experience and ensure the code meets professional quality standards for final submission.
 

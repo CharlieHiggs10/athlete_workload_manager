@@ -52,6 +52,29 @@ class ActivityNotifier extends AsyncNotifier<List<ActivityModel>> {
       await ref.read(firestoreServiceProvider).deleteActivity(user.uid, id);
     }
   }
+
+  /// Logic Summary:
+  /// Maps an activity name to its corresponding workload weight.
+  /// Used for calculating stress and recovery analytics.
+  int getActivityWeight(String activityName) {
+    const weights = {
+      'Game': 4,
+      'Practice': 3,
+      'Study': 3,
+      'Class': 3,
+      'Lift': 2,
+      'Travel': 2,
+      'Lab': 2,
+      'Film': 1,
+      'Office Hours': 1,
+      'Stretching': -1,
+      'Injury Rehab': -2,
+      'Hydration': -2,
+      'Ice Bath': -2,
+      'Nap': -3,
+    };
+    return weights[activityName] ?? 0;
+  }
 }
 
 /// Logic Summary:

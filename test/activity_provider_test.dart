@@ -166,4 +166,37 @@ void main() {
       expect(doc.exists, isFalse);
     });
   });
+
+  group('Weight Mapping Tests', () {
+    test('getActivityWeight should return correct values for all activities', () {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      final notifier = container.read(activityProvider.notifier);
+
+      expect(notifier.getActivityWeight('Game'), 4);
+      expect(notifier.getActivityWeight('Practice'), 3);
+      expect(notifier.getActivityWeight('Study'), 3);
+      expect(notifier.getActivityWeight('Class'), 3);
+      expect(notifier.getActivityWeight('Lift'), 2);
+      expect(notifier.getActivityWeight('Travel'), 2);
+      expect(notifier.getActivityWeight('Lab'), 2);
+      expect(notifier.getActivityWeight('Film'), 1);
+      expect(notifier.getActivityWeight('Office Hours'), 1);
+      expect(notifier.getActivityWeight('Stretching'), -1);
+      expect(notifier.getActivityWeight('Injury Rehab'), -2);
+      expect(notifier.getActivityWeight('Hydration'), -2);
+      expect(notifier.getActivityWeight('Ice Bath'), -2);
+      expect(notifier.getActivityWeight('Nap'), -3);
+    });
+
+    test('getActivityWeight should return 0 for unknown activities', () {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      final notifier = container.read(activityProvider.notifier);
+
+      expect(notifier.getActivityWeight('Exam'), 0);
+      expect(notifier.getActivityWeight('Unknown'), 0);
+      expect(notifier.getActivityWeight(''), 0);
+    });
+  });
 }
