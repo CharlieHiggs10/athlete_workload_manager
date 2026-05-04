@@ -147,7 +147,7 @@ Purpose: To persist the calendar data across sessions so the athlete's schedule 
     [x] Step 3.2.4: The Loading & Error States
     Purpose: Update the `CalendarScreen` to gracefully handle network delays by using Riverpod's `AsyncValue` to show loading spinners and error messages while fetching Firestore data.
 
-[ ] Step 3.3: The Workload Weighting Engine
+[x] Step 3.3: The Workload Weighting Engine
     Purpose: To automatically calculate stress and recovery without requiring subjective user forms.
     
     [x] Step 3.3.1: Update the Activity Model
@@ -158,7 +158,7 @@ Purpose: To persist the calendar data across sessions so the athlete's schedule 
         Purpose: Define the point values for every possible activity.
         Create a private utility function or mapping dictionary (e.g., inside the `ActivityProvider`) that links string activity names to integer weights (Game: 4, Practice: 3, Study: 3, Class: 3, Lift: 2, Travel: 2, Lab: 2, Film: 1, Office Hours: 1, Stretching: -1, Injury Rehab: -2, Hydration: -2, Ice Bath: -2, Nap: -3).
 
-    [ ] Step 3.3.3: Intercept and Inject Weights on Save
+    [x] Step 3.3.3: Intercept and Inject Weights on Save
         Purpose: Automatically calculate the weight before data hits the cloud.
         Update the `addActivity` (or `save`) method in the `ActivityProvider`. Before sending the `Activity` object to the `FirestoreService`, look up the correct weight using the dictionary from 3.3.2 and inject it into the object.
 

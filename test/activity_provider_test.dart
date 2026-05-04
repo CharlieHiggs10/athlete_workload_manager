@@ -280,6 +280,65 @@ void main() {
       expect(filteredActivities.any((a) => a.id == '3'), isFalse);
       expect(filteredActivities.any((a) => a.id == '4'), isFalse);
     });
+
+    test('workloadProvider should correctly sum weights for recent activities', () async {
+      final container = createContainer();
+      await container.read(authStateProvider.future);
+
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+      
+      final activities = [
+        // Today: Game (4)
+        ActivityModel(
+          id: '1',
+          title: 'Game',
+          date: today,
+          startTime: const TimeOfDay(hour: 10, minute: 0),
+          endTime: const TimeOfDay(hour: 12, minute: 0),
+          category: AthleteMode.athletic,
+        ),
+        // 3 days ago: Practice (3)
+        ActivityModel(
+          id: '2',
+          title: 'Practice',
+          date: today.subtract(const Duration(days: 3)),
+          startTime: const TimeOfDay(hour: 10, minute: 0),
+          endTime: const TimeOfDay(hour: 11, minute: 0),
+          category: AthleteMode.athletic,
+        ),
+        // 5 days ago: Nap (-3)
+        ActivityModel(
+          id: '3',
+          title: 'Nap',
+          date: today.subtract(const Duration(days: 5)),
+          startTime: const TimeOfDay(hour: 10, minute: 0),
+          endTime: const TimeOfDay(hour: 13, minute: 0),
+          category: AthleteMode.recovery,
+        ),
+        // 7 days ago (Exclusive): Lift (2) - Should not be counted
+        ActivityModel(
+          id: '4',
+          title: 'Lift',
+          date: today.subtract(const Duration(days: 7)),
+          startTime: const TimeOfDay(hour: 10, minute: 0),
+          endTime: const TimeOfDay(hour: 11, minute: 0),
+          category: AthleteMode.athletic,
+        ),
+      ];
+
+      for (var activity in activities) {
+        await container.read(activityProvider.notifier).addActivity(activity);
+      }
+
+      // Wait for the activityProvider to update and emit data
+      final totalWorkload = await container.read(activityProvider.future).then((_) {
+        return container.read(workloadProvider);
+      });
+
+      // Sum: 4 + 3 + (-3) = 4
+      expect(totalWorkload, 4);
+    });
   });
 
   group('Weight Mapping Tests', () {

@@ -116,3 +116,15 @@ final recentActivitiesProvider = Provider<AsyncValue<List<ActivityModel>>>((ref)
     }).toList();
   });
 });
+
+/// Logic Summary:
+/// Calculates the mathematical sum of weights for activities within the 7-day window.
+/// This cumulative score is used to determine burnout risk.
+final workloadProvider = Provider<int>((ref) {
+  final recentActivitiesAsync = ref.watch(recentActivitiesProvider);
+
+  return recentActivitiesAsync.maybeWhen(
+    data: (activities) => activities.fold(0, (sum, activity) => sum + activity.weight),
+    orElse: () => 0,
+  );
+});
