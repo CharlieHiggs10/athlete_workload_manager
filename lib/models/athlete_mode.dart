@@ -23,4 +23,17 @@ extension AthleteModeChips on AthleteMode {
         return [];
     }
   }
+
+  String get displayName {
+    switch (this) {
+      case AthleteMode.athletic:
+        return 'Athletic';
+      case AthleteMode.academic:
+        return 'Academic';
+      case AthleteMode.recovery:
+        return 'Recovery';
+      case AthleteMode.overview:
+        return 'Overview';
+    }
+  }
 }

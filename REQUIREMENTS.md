@@ -162,18 +162,18 @@ Purpose: To persist the calendar data across sessions so the athlete's schedule 
         Purpose: Automatically calculate the weight before data hits the cloud.
         Update the `addActivity` (or `save`) method in the `ActivityProvider`. Before sending the `Activity` object to the `FirestoreService`, look up the correct weight using the dictionary from 3.3.2 and inject it into the object.
 
-[ ] Step 3.4: Predictive Burnout Analytics (Invisible Engine)
+[x] Step 3.4: Predictive Burnout Analytics (Invisible Engine)
     Purpose: To monitor the 7-day workload and alert the athlete only when they enter a high-risk burnout period.
     
-    [ ] Step 3.4.1: The 7-Day Data Filter
+    [x] Step 3.4.1: The 7-Day Data Filter
         Purpose: Isolate the relevant data for the current burnout calculation.
         Create a function or Riverpod provider that filters the user's total activities, returning strictly those that occurred within a rolling 7-day window (Today + the previous 6 days).
 
-    [ ] Step 3.4.2: The Workload Summation Provider
+    [x] Step 3.4.2: The Workload Summation Provider
         Purpose: Calculate the invisible cumulative score.
         Create a new Riverpod provider (e.g., `workloadProvider`) that listens to the filtered 7-day activities from 3.4.1 and calculates the mathematical sum of their `weight` values. Ensure this returns an integer.
 
-    [ ] Step 3.4.3: The "Check Engine Light" UI
+    [x] Step 3.4.3: The "Check Engine Light" UI
         Purpose: Warn the athlete without showing them the raw numbers.
         Update the `CalendarScreen` to watch the `workloadProvider`. If the integer value is strictly greater than 25, display a prominent, red-themed "Burnout Alert" card above the calendar suggesting recovery. If the value is 25 or below, hide the card entirely so the UI remains clean. Do not display the integer score anywhere.
 
@@ -181,8 +181,5 @@ Purpose: To persist the calendar data across sessions so the athlete's schedule 
 Step 4: Polish & Performance
 Goal: Refine the user experience and ensure the code meets professional quality standards for final submission.
 
-[ ] Step 4.1: UI/UX Refinement
-    Purpose: Apply consistent styling across the Login and Calendar screens. Ensure the "Burnout Warning" is visually distinct (e.g., using orange or red theme colors) and the calendar elements are perfectly aligned.
-
-[ ] Step 4.2: Final Refactoring
+[x] Step 4: Final Refactoring
     Purpose: To maintain code quality and ensure no file exceeds the 200-line limit before final submission. Audit all widgets, extract sub-components into the `/widgets` directory, and remove all `print()` statements and unused imports.

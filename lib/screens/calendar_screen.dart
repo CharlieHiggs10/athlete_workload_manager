@@ -7,6 +7,8 @@ import '../providers/activity_provider.dart';
 import '../providers/auth_provider.dart';
 import '../widgets/activity_input_sheet.dart';
 import '../widgets/activity_list_view.dart';
+import '../widgets/burnout_alert_card.dart';
+import '../widgets/mode_toggle_icon.dart';
 import '../theme.dart';
 
 /// Logic Summary:
@@ -21,7 +23,7 @@ class CalendarScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final currentMode = ref.watch(athleteModeProvider);
     final activitiesAsync = ref.watch(activityProvider);
-    final themeData = _getThemeForMode(currentMode);
+    final themeData = AppTheme.getThemeForMode(currentMode);
 
     return Theme(
       data: themeData,
@@ -32,27 +34,27 @@ class CalendarScreen extends ConsumerWidget {
             onPressed: () => ref.read(authServiceProvider).signOut(),
             tooltip: 'Sign Out',
           ),
-          title: Text(_getTitleForMode(currentMode)),
+          title: Text(currentMode.displayName),
           actions: [
-            _ModeToggleIcon(
+            ModeToggleIcon(
               mode: AthleteMode.overview,
               icon: Icons.home,
               isActive: currentMode == AthleteMode.overview,
               onPressed: () => _setMode(ref, AthleteMode.overview),
             ),
-            _ModeToggleIcon(
+            ModeToggleIcon(
               mode: AthleteMode.athletic,
               icon: Icons.fitness_center,
               isActive: currentMode == AthleteMode.athletic,
               onPressed: () => _setMode(ref, AthleteMode.athletic),
             ),
-            _ModeToggleIcon(
+            ModeToggleIcon(
               mode: AthleteMode.academic,
               icon: Icons.school,
               isActive: currentMode == AthleteMode.academic,
               onPressed: () => _setMode(ref, AthleteMode.academic),
             ),
-            _ModeToggleIcon(
+            ModeToggleIcon(
               mode: AthleteMode.recovery,
               icon: Icons.self_improvement,
               isActive: currentMode == AthleteMode.recovery,
@@ -83,9 +85,16 @@ class CalendarScreen extends ConsumerWidget {
               return aMinutes.compareTo(bMinutes);
             });
 
-            return ActivityListView(
-              activities: filteredActivities,
-              currentMode: currentMode,
+            return Column(
+              children: [
+                const BurnoutAlertCard(),
+                Expanded(
+                  child: ActivityListView(
+                    activities: filteredActivities,
+                    currentMode: currentMode,
+                  ),
+                ),
+              ],
             );
           },
           loading: () => const Center(child: CircularProgressIndicator()),
@@ -119,7 +128,7 @@ class CalendarScreen extends ConsumerWidget {
       isScrollControlled: true,
       builder: (context) {
         return Theme(
-          data: _getThemeForMode(logMode),
+          data: AppTheme.getThemeForMode(logMode),
           child: ActivityInputSheet(
             initialDate: DateTime.now(),
           ),
@@ -144,59 +153,5 @@ class CalendarScreen extends ConsumerWidget {
   /// Updates the global state with the selected athlete mode.
   void _setMode(WidgetRef ref, AthleteMode mode) {
     ref.read(athleteModeProvider.notifier).state = mode;
-  }
-
-  /// Returns the specific ThemeData for each mode based on AppTheme constants.
-  ThemeData _getThemeForMode(AthleteMode mode) {
-    switch (mode) {
-      case AthleteMode.athletic:
-        return AppTheme.getThemeForColor(AppTheme.athleticRed);
-      case AthleteMode.academic:
-        return AppTheme.getThemeForColor(AppTheme.academicBlue);
-      case AthleteMode.recovery:
-        return AppTheme.getThemeForColor(AppTheme.recoveryGreen);
-      case AthleteMode.overview:
-        return AppTheme.getThemeForColor(Colors.blueGrey);
-    }
-  }
-
-  /// Provides descriptive titles for the AppBar.
-  String _getTitleForMode(AthleteMode mode) {
-    switch (mode) {
-      case AthleteMode.athletic:
-        return 'Athletic';
-      case AthleteMode.academic:
-        return 'Academic';
-      case AthleteMode.recovery:
-        return 'Recovery';
-      case AthleteMode.overview:
-        return 'Overview';
-    }
-  }
-}
-
-/// Logic Summary:
-/// Specialized IconButton that indicates if its mode is currently active.
-class _ModeToggleIcon extends StatelessWidget {
-  final AthleteMode mode;
-  final IconData icon;
-  final bool isActive;
-  final VoidCallback onPressed;
-
-  const _ModeToggleIcon({
-    required this.mode,
-    required this.icon,
-    required this.isActive,
-    required this.onPressed,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return IconButton(
-      icon: Icon(icon),
-      color: isActive ? Colors.white : Colors.white.withAlpha(150),
-      onPressed: onPressed,
-      tooltip: mode.name.toUpperCase(),
-    );
   }
 }

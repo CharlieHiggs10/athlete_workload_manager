@@ -32,7 +32,7 @@ class ActivityListView extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             Text(
-              'No ${currentMode == AthleteMode.overview ? "" : _getTitleForMode(currentMode)} activities ${currentMode == AthleteMode.overview ? "for today" : "scheduled"}.',
+              'No ${currentMode == AthleteMode.overview ? "" : currentMode.displayName} activities ${currentMode == AthleteMode.overview ? "for today" : "scheduled"}.',
               style: themeData.textTheme.titleLarge?.copyWith(
                     color: themeData.primaryColor,
                   ),
@@ -117,20 +117,6 @@ class ActivityListView extends StatelessWidget {
         return Icons.self_improvement;
       case AthleteMode.overview:
         return Icons.view_agenda;
-    }
-  }
-
-  /// Provides descriptive titles for the empty state message.
-  String _getTitleForMode(AthleteMode mode) {
-    switch (mode) {
-      case AthleteMode.athletic:
-        return 'Athletic';
-      case AthleteMode.academic:
-        return 'Academic';
-      case AthleteMode.recovery:
-        return 'Recovery';
-      case AthleteMode.overview:
-        return 'Overview';
     }
   }
 }

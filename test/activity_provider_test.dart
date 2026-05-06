@@ -368,7 +368,6 @@ void main() {
       addTearDown(container.dispose);
       final notifier = container.read(activityProvider.notifier);
 
-      expect(notifier.getActivityWeight('Exam'), 0);
       expect(notifier.getActivityWeight('Unknown'), 0);
       expect(notifier.getActivityWeight(''), 0);
     });

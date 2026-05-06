@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'models/athlete_mode.dart';
 
 /// Logic Summary:
 /// Global ThemeData class defining the three primary category colors:
@@ -25,5 +26,19 @@ class AppTheme {
         foregroundColor: Colors.white,
       ),
     );
+  }
+
+  /// Returns the specific ThemeData for each mode based on AppTheme constants.
+  static ThemeData getThemeForMode(AthleteMode mode) {
+    switch (mode) {
+      case AthleteMode.athletic:
+        return getThemeForColor(athleticRed);
+      case AthleteMode.academic:
+        return getThemeForColor(academicBlue);
+      case AthleteMode.recovery:
+        return getThemeForColor(recoveryGreen);
+      case AthleteMode.overview:
+        return getThemeForColor(Colors.blueGrey);
+    }
   }
 }

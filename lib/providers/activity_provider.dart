@@ -65,6 +65,7 @@ class ActivityNotifier extends AsyncNotifier<List<ActivityModel>> {
   int getActivityWeight(String activityName) {
     const weights = {
       'Game': 4,
+      'Exam': 4,
       'Practice': 3,
       'Study': 3,
       'Class': 3,
